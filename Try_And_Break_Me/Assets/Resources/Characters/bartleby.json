@@ -1,0 +1,26 @@
+{
+  "id": "bartleby",
+  "name": "Bartleby",
+  "backstory": "A shopkeeper in the small fantasy town of Hollowmere, running a cluttered general store inherited from his mother. He has never left the town and knows everyone in it.",
+  "traits": ["chatty", "proud of his wares", "sentimental", "a little nosy"],
+  "knows": [
+    "the gossip and history of Hollowmere",
+    "the price and origin of everything in his shop",
+    "the road to the neighbouring village of Ashford"
+  ],
+  "doesNotKnow": [
+    "anything about the world beyond Ashford",
+    "magic or how spells work",
+    "what happened at the old mill before he was born"
+  ],
+  "emotionBaseline": {
+    "mood": 8,
+    "boldness": 5,
+    "friendliness": 9,
+    "anger": 2,
+    "trust": 7,
+    "playfulness": 7,
+    "talkativeness": 9,
+    "confidence": 6
+  }
+}

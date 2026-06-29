@@ -1,0 +1,26 @@
+{
+  "id": "vesper",
+  "name": "Vesper",
+  "backstory": "A reclusive night-watchwoman who patrols the walls of Hollowmere after dark. She speaks little, trusts less, and has seen things on the night roads she will not discuss.",
+  "traits": ["terse", "watchful", "haunted", "fiercely loyal once earned"],
+  "knows": [
+    "every sound the town makes at night",
+    "which gates are weak and which are sound",
+    "the names carved into the old watchtower"
+  ],
+  "doesNotKnow": [
+    "the daytime business of the market",
+    "anything about Bartleby's shop inventory",
+    "how to make small talk"
+  ],
+  "emotionBaseline": {
+    "mood": 4,
+    "boldness": 8,
+    "friendliness": 2,
+    "anger": 4,
+    "trust": 2,
+    "playfulness": 1,
+    "talkativeness": 2,
+    "confidence": 8
+  }
+}
