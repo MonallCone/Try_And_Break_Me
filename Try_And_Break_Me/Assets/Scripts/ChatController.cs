@@ -17,6 +17,7 @@ public class ChatController
     private readonly SanityModel _sanity;
     private readonly IDialogueProvider _provider;
     private readonly IDirectorProvider _director;
+    private readonly Sprite _icon;
 
     private readonly List<ChatMessage> _history = new List<ChatMessage>();
     private string _systemPrompt;
@@ -29,33 +30,92 @@ public class ChatController
     private TMP_Text _debug;
 
     public ChatController(CharacterSheet sheet, EmotionProfile emotion, SanityModel sanity,
-                          IDialogueProvider provider, IDirectorProvider director)
+                          IDialogueProvider provider, IDirectorProvider director, Sprite icon = null)
     {
         _sheet = sheet;
         _emotion = emotion;
         _sanity = sanity;
         _provider = provider;
         _director = director;
+        _icon = icon;
         _systemPrompt = PromptAssembler.Assemble(sheet, emotion);
     }
 
     // Build the chat UI inside the given window content area.
     public void Build(RectTransform content)
     {
-        // Layout: [ transcript scroll (flex) ] [ debug (fixed) ] [ input row (fixed) ]
+        // Layout: [ top row: transcript (flex) | icon panel (fixed) ] [ debug ] [ input row ]
         var root = NewRect(content, "ChatRoot");
         Stretch(root);
+        var rootBg = root.gameObject.AddComponent<Image>();
+        rootBg.color = new Color(0.88f, 0.88f, 0.90f, 1f);
         var vlg = root.gameObject.AddComponent<VerticalLayoutGroup>();
         vlg.padding = new RectOffset(6, 6, 6, 6);
         vlg.spacing = 4f;
         vlg.childControlWidth = true; vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
-        BuildTranscript(root);   // flexible height
+        BuildTopRow(root);       // transcript + icon panel, flexible height
         BuildDebug(root);        // small fixed
         BuildInputRow(root);     // fixed
 
         RefreshDebug(null, default);
+    }
+
+    // Top row: transcript on the left (flexible), icon panel on the right (fixed width).
+    private void BuildTopRow(RectTransform parent)
+    {
+        var rowGo = new GameObject("TopRow", typeof(RectTransform));
+        var rowRt = rowGo.GetComponent<RectTransform>();
+        rowRt.SetParent(parent, false);
+        var rowLe = rowGo.AddComponent<LayoutElement>();
+        rowLe.flexibleHeight = 1f;   // the top row takes the remaining vertical space
+        var hlg = rowGo.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 6f;
+        hlg.childControlWidth = true; hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = true;
+
+        BuildTranscript(rowRt);  // flexible width
+        BuildIconPanel(rowRt);   // fixed width square + name
+    }
+
+    // Fixed-width panel on the right: a big icon square with the character's name beneath.
+    private void BuildIconPanel(RectTransform parent)
+    {
+        var panelGo = new GameObject("IconPanel", typeof(RectTransform), typeof(Image));
+        var panelRt = panelGo.GetComponent<RectTransform>();
+        panelRt.SetParent(parent, false);
+        panelGo.GetComponent<Image>().color = new Color(0.82f, 0.82f, 0.85f, 1f);
+        var le = panelGo.AddComponent<LayoutElement>();
+        le.preferredWidth = 120f; le.minWidth = 120f;   // fixed width
+        var vlg = panelGo.AddComponent<VerticalLayoutGroup>();
+        vlg.padding = new RectOffset(8, 8, 8, 8);
+        vlg.spacing = 6f;
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true; vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
+
+        // The icon square — fills the panel width, stays square-ish and stretches to fill.
+        var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+        iconGo.GetComponent<RectTransform>().SetParent(panelRt, false);
+        var iconImg = iconGo.GetComponent<Image>();
+        if (_icon != null) { iconImg.sprite = _icon; iconImg.preserveAspect = false; }
+        else iconImg.color = new Color(0.6f, 0.6f, 0.65f, 1f);   // placeholder grey block
+        var iconLe = iconGo.AddComponent<LayoutElement>();
+        iconLe.flexibleHeight = 1f;    // stretch to fill the available vertical space
+        iconLe.flexibleWidth = 1f;     // and the panel width
+
+        // The character name under the icon
+        var nameGo = new GameObject("Name", typeof(RectTransform), typeof(TextMeshProUGUI));
+        nameGo.GetComponent<RectTransform>().SetParent(panelRt, false);
+        var nameT = nameGo.GetComponent<TextMeshProUGUI>();
+        nameT.text = _sheet.Name;
+        nameT.fontSize = 15f; nameT.fontStyle = FontStyles.Bold;
+        nameT.color = Color.black;
+        nameT.alignment = TextAlignmentOptions.Center;
+        nameT.textWrappingMode = TextWrappingModes.Normal;
+        var nameLe = nameGo.AddComponent<LayoutElement>();
+        nameLe.minHeight = 24f;
     }
 
     // ---- transcript (the tricky scroll view, built correctly in code) --------
@@ -65,9 +125,10 @@ public class ChatController
         var scrollGo = new GameObject("Transcript", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
         var scrollRt = scrollGo.GetComponent<RectTransform>();
         scrollRt.SetParent(parent, false);
-        scrollGo.GetComponent<Image>().color = new Color(0.08f, 0.08f, 0.1f, 1f);
+        scrollGo.GetComponent<Image>().color = new Color(0.96f, 0.96f, 0.97f, 1f); // light transcript bg
         var le = scrollGo.AddComponent<LayoutElement>();
-        le.flexibleHeight = 1f;   // takes remaining space
+        le.flexibleWidth = 1f;    // transcript takes the remaining horizontal space in the top row
+        le.flexibleHeight = 1f;   // and fills the row height
         _scroll = scrollGo.GetComponent<ScrollRect>();
         _scroll.horizontal = false; _scroll.vertical = true;
         _scroll.movementType = ScrollRect.MovementType.Clamped;
@@ -106,7 +167,7 @@ public class ChatController
         _transcript = textGo.GetComponent<TextMeshProUGUI>();
         _transcript.text = "";
         _transcript.fontSize = 14f;
-        _transcript.color = new Color(0.9f, 0.9f, 0.95f, 1f);
+        _transcript.color = Color.black;
         _transcript.textWrappingMode = TextWrappingModes.Normal;
         _transcript.overflowMode = TextOverflowModes.Overflow;
     }
@@ -119,7 +180,7 @@ public class ChatController
         le.minHeight = 70f; le.preferredHeight = 70f;
         _debug = go.GetComponent<TextMeshProUGUI>();
         _debug.fontSize = 11f;
-        _debug.color = new Color(0.6f, 0.85f, 0.6f, 1f);
+        _debug.color = new Color(0.15f, 0.4f, 0.15f, 1f); // dark green, readable on light
         _debug.alignment = TextAlignmentOptions.TopLeft;
     }
 
@@ -137,7 +198,7 @@ public class ChatController
         // Input field
         var inputGo = new GameObject("Input", typeof(RectTransform), typeof(Image), typeof(TMP_InputField));
         inputGo.GetComponent<RectTransform>().SetParent(rowRt, false);
-        inputGo.GetComponent<Image>().color = new Color(0.16f, 0.16f, 0.2f, 1f);
+        inputGo.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f); // white input field
         var inputLe = inputGo.AddComponent<LayoutElement>();
         inputLe.flexibleWidth = 1f;
         _input = inputGo.GetComponent<TMP_InputField>();
@@ -153,14 +214,14 @@ public class ChatController
         Stretch(placeholderGo.GetComponent<RectTransform>());
         var placeholder = placeholderGo.GetComponent<TextMeshProUGUI>();
         placeholder.text = "Say something..."; placeholder.fontSize = 13f;
-        placeholder.color = new Color(0.6f, 0.6f, 0.65f, 1f);
+        placeholder.color = new Color(0.5f, 0.5f, 0.5f, 1f);
         placeholder.alignment = TextAlignmentOptions.Left;
 
         var textGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         textGo.GetComponent<RectTransform>().SetParent(textAreaRt, false);
         Stretch(textGo.GetComponent<RectTransform>());
         var inputText = textGo.GetComponent<TextMeshProUGUI>();
-        inputText.fontSize = 13f; inputText.color = Color.white;
+        inputText.fontSize = 13f; inputText.color = Color.black;
         inputText.alignment = TextAlignmentOptions.Left;
 
         _input.textViewport = textAreaRt;

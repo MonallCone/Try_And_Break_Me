@@ -61,7 +61,7 @@ public class AppLauncher : MonoBehaviour
             neglectPerIgnoredBot = sanityTemplate.neglectPerIgnoredBot
         };
 
-        var chat = new ChatController(sheet, emotion, sanity, _provider, _director);
+        var chat = new ChatController(sheet, emotion, sanity, _provider, _director, icon);
         chat.Build(win.ContentArea);
     }
 }

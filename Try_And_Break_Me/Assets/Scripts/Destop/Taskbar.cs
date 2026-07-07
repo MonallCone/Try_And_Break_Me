@@ -29,42 +29,44 @@ public class Taskbar : MonoBehaviour
     {
         if (buttonContainer == null) return;
 
-        var go = new GameObject($"Task_{win.Title}", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement), typeof(HorizontalLayoutGroup));
+        var go = new GameObject($"Task_{win.Title}", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
         var rt = go.GetComponent<RectTransform>();
         rt.SetParent(buttonContainer, false);
-        go.GetComponent<Image>().color = new Color(0.22f, 0.24f, 0.30f, 1f);
+        var buttonBg = go.GetComponent<Image>();
         go.GetComponent<LayoutElement>().preferredWidth = 140f;
         go.GetComponent<LayoutElement>().preferredHeight = 30f;
         go.GetComponent<Button>().onClick.AddListener(() => _manager?.Focus(win));
-        var buttonHlg = go.GetComponent<HorizontalLayoutGroup>();
-        buttonHlg.spacing = 4f; buttonHlg.padding = new RectOffset(4, 6, 3, 3);
-        buttonHlg.childControlWidth = true; buttonHlg.childControlHeight = true;
-        buttonHlg.childForceExpandWidth = false; buttonHlg.childForceExpandHeight = true;
-        buttonHlg.childAlignment = TextAnchor.MiddleLeft;
 
-        // Optional icon on the taskbar button
+        // The icon (if any) is the button BACKGROUND, filling the button. The label sits on top.
         if (win.Icon != null)
         {
-            var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-            iconGo.GetComponent<RectTransform>().SetParent(rt, false);
-            var iconImg = iconGo.GetComponent<Image>();
-            iconImg.sprite = win.Icon; iconImg.preserveAspect = true;
-            var iconLe = iconGo.AddComponent<LayoutElement>();
-            iconLe.preferredWidth = 22; iconLe.preferredHeight = 22;
-            iconLe.minWidth = 22; iconLe.minHeight = 22;
+            buttonBg.sprite = win.Icon;
+            buttonBg.type = Image.Type.Simple;
+            buttonBg.preserveAspect = false;   // fill the whole button like a desktop taskbar tile
+            buttonBg.color = Color.white;
+        }
+        else
+        {
+            buttonBg.color = new Color(0.22f, 0.24f, 0.30f, 1f);
         }
 
+        // Label overlaid on top of the background, full-stretch, centred, with a readable shadow.
         var labelGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
         var labelRt = labelGo.GetComponent<RectTransform>();
         labelRt.SetParent(rt, false);
-        var labelLe = labelGo.AddComponent<LayoutElement>();
-        labelLe.flexibleWidth = 1f;
+        labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;
+        labelRt.offsetMin = new Vector2(6f, 0f); labelRt.offsetMax = new Vector2(-6f, 0f);
         var label = labelGo.GetComponent<TextMeshProUGUI>();
         label.text = win.Title;
         label.fontSize = 12f;
         label.color = Color.white;
-        label.alignment = TextAlignmentOptions.Left;
+        label.alignment = TextAlignmentOptions.Center;
         label.overflowMode = TextOverflowModes.Ellipsis;
+        label.fontStyle = FontStyles.Bold;
+        // Slight dark outline so white text stays legible over any icon.
+        label.enableVertexGradient = false;
+        label.outlineWidth = 0.2f;
+        label.outlineColor = new Color(0f, 0f, 0f, 0.9f);
 
         _buttons[win] = go;
     }
@@ -83,9 +85,19 @@ public class Taskbar : MonoBehaviour
         foreach (var kv in _buttons)
         {
             var img = kv.Value.GetComponent<Image>();
-            img.color = (kv.Key == win)
-                ? new Color(0.30f, 0.34f, 0.45f, 1f)   // focused: lighter
-                : new Color(0.22f, 0.24f, 0.30f, 1f);
+            bool focused = (kv.Key == win);
+            if (kv.Key.Icon != null)
+            {
+                // Icon background: full brightness when focused, dimmed when not.
+                img.color = focused ? Color.white : new Color(0.55f, 0.55f, 0.55f, 1f);
+            }
+            else
+            {
+                // Plain coloured button (no icon).
+                img.color = focused
+                    ? new Color(0.30f, 0.34f, 0.45f, 1f)
+                    : new Color(0.22f, 0.24f, 0.30f, 1f);
+            }
         }
     }
 }

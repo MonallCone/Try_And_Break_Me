@@ -65,6 +65,9 @@ public class CreatorWindow
     {
         var page = NewRect(content, "Page1");
         Stretch(page);
+        // Light background so black text reads clearly.
+        var bg = page.gameObject.AddComponent<Image>();
+        bg.color = new Color(0.88f, 0.88f, 0.90f, 1f);
         var vlg = page.gameObject.AddComponent<VerticalLayoutGroup>();
         vlg.padding = new RectOffset(14, 14, 14, 14);
         vlg.spacing = 8f;
@@ -143,7 +146,7 @@ public class CreatorWindow
         // A small scroll view so a long backstory doesn't overflow.
         var scrollGo = new GameObject("Info", typeof(RectTransform), typeof(Image), typeof(ScrollRect));
         scrollGo.GetComponent<RectTransform>().SetParent(parent, false);
-        scrollGo.GetComponent<Image>().color = new Color(0.1f, 0.1f, 0.12f, 1f);
+        scrollGo.GetComponent<Image>().color = new Color(0.96f, 0.96f, 0.97f, 1f);
         var le = scrollGo.AddComponent<LayoutElement>();
         le.flexibleHeight = 1f; le.minHeight = 120f;
         var scroll = scrollGo.GetComponent<ScrollRect>();
@@ -175,7 +178,7 @@ public class CreatorWindow
         var textGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         textGo.GetComponent<RectTransform>().SetParent(contentRt, false);
         var t = textGo.GetComponent<TextMeshProUGUI>();
-        t.fontSize = 12.5f; t.color = new Color(0.85f, 0.85f, 0.9f, 1f);
+        t.fontSize = 13.5f; t.color = Color.black;
         t.textWrappingMode = TextWrappingModes.Normal;
         return t;
     }
@@ -204,6 +207,8 @@ public class CreatorWindow
     {
         var page = NewRect(content, "Page2");
         Stretch(page);
+        var bg = page.gameObject.AddComponent<Image>();
+        bg.color = new Color(0.88f, 0.88f, 0.90f, 1f);
         var vlg = page.gameObject.AddComponent<VerticalLayoutGroup>();
         vlg.padding = new RectOffset(14, 14, 14, 14);
         vlg.spacing = 6f;
@@ -276,7 +281,7 @@ public class CreatorWindow
         go.GetComponent<RectTransform>().SetParent(parent, false);
         var t = go.GetComponent<TextMeshProUGUI>();
         t.text = text; t.fontSize = size; t.fontStyle = style;
-        t.color = new Color(0.9f, 0.9f, 0.95f, 1f);
+        t.color = Color.black;
         t.alignment = TextAlignmentOptions.Left;
         AddLayoutHeight(go, height);
         return t;
@@ -286,7 +291,7 @@ public class CreatorWindow
     {
         var go = new GameObject("Dropdown", typeof(RectTransform), typeof(Image), typeof(TMP_Dropdown));
         go.GetComponent<RectTransform>().SetParent(parent, false);
-        go.GetComponent<Image>().color = new Color(0.2f, 0.2f, 0.24f, 1f);
+        go.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
         AddLayoutHeight(go, 30f);
         var dd = go.GetComponent<TMP_Dropdown>();
 
@@ -296,7 +301,7 @@ public class CreatorWindow
         labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;
         labelRt.offsetMin = new Vector2(10, 0); labelRt.offsetMax = new Vector2(-25, 0);
         var label = labelGo.GetComponent<TextMeshProUGUI>();
-        label.color = Color.white; label.fontSize = 13f; label.alignment = TextAlignmentOptions.Left;
+        label.color = Color.black; label.fontSize = 13f; label.alignment = TextAlignmentOptions.Left;
         dd.captionText = label;
 
         var templateGo = new GameObject("Template", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(Canvas), typeof(GraphicRaycaster));
@@ -306,7 +311,7 @@ public class CreatorWindow
         templateRt.pivot = new Vector2(0.5f, 1f);
         templateRt.anchoredPosition = new Vector2(0, 2);
         templateRt.sizeDelta = new Vector2(0, 120);
-        templateGo.GetComponent<Image>().color = new Color(0.18f, 0.18f, 0.22f, 1f);
+        templateGo.GetComponent<Image>().color = new Color(0.98f, 0.98f, 0.98f, 1f);
         templateGo.SetActive(false);
 
         var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
@@ -328,7 +333,7 @@ public class CreatorWindow
         itemLabelRt.anchorMin = Vector2.zero; itemLabelRt.anchorMax = Vector2.one;
         itemLabelRt.offsetMin = new Vector2(10, 0); itemLabelRt.offsetMax = new Vector2(-10, 0);
         var itemLabel = itemLabelGo.GetComponent<TextMeshProUGUI>();
-        itemLabel.color = Color.white; itemLabel.fontSize = 13f;
+        itemLabel.color = Color.black; itemLabel.fontSize = 13f;
         itemLabel.alignment = TextAlignmentOptions.Left;
 
         dd.template = templateRt;
@@ -359,7 +364,7 @@ public class CreatorWindow
         var go = new GameObject("L", typeof(RectTransform), typeof(TextMeshProUGUI));
         go.GetComponent<RectTransform>().SetParent(parent, false);
         var t = go.GetComponent<TextMeshProUGUI>();
-        t.text = text; t.fontSize = 12f; t.color = new Color(0.8f, 0.8f, 0.85f, 1f);
+        t.text = text; t.fontSize = 13f; t.color = Color.black;
         t.alignment = align;
         var le = go.AddComponent<LayoutElement>();
         le.preferredWidth = width; le.minWidth = width;
