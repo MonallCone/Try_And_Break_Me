@@ -1,4 +1,12 @@
 """
+Phase 3 relay server — GEMINI version with the DIRECTOR scoring endpoint.
+
+This extends the Phase 1/2 server with a second endpoint, /score, used by the AI Director.
+Each player turn now makes TWO calls:
+  1. POST /score     -> the Director reads the player's message + the bot's identity and
+                        returns JSON scores for the content-based sanity drivers.
+  2. POST /generate  -> the bot's reply (unchanged from before).
+
 Design split (important):
   - The Director (here) scores only what needs judgement of MESSAGE CONTENT:
         rudeness, off-topic/out-of-character, contradiction/nonsense.
@@ -174,9 +182,9 @@ Return only the JSON object."""
 
     config = types.GenerateContentConfig(
         system_instruction=DIRECTOR_SYSTEM,
-        max_output_tokens=200,
-        temperature=0.0,          # scoring should be stable, not creative
-        response_mime_type="application/json",   # ask Gemini for raw JSON
+        max_output_tokens=512,     # 2.5 models spend tokens on internal reasoning; give headroom
+        temperature=0.0,           # scoring should be stable, not creative
+        thinking_config=types.ThinkingConfig(thinking_budget=0),  # no rumination needed for scoring
     )
     resp = _call_with_backoff(
         [types.Content(role="user", parts=[types.Part(text=user_block)])],
@@ -184,10 +192,13 @@ Return only the JSON object."""
     )
     usage = resp.usage_metadata
 
+    raw = resp.text or ""
+    print("\n[DIRECTOR raw response]:", repr(raw))   # TEMP: see exactly what the model returned
+
     try:
-        data = _extract_json(resp.text or "{}")
-    except (json.JSONDecodeError, ValueError):
-        # Fail safe: if the model returned junk, score zero rather than crash the turn.
+        data = _extract_json(raw or "{}")
+    except (json.JSONDecodeError, ValueError) as e:
+        print("[DIRECTOR parse FAILED]:", e)          # TEMP: surface the failure instead of hiding it
         data = {}
 
     return ScoreResponse(
