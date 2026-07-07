@@ -1,12 +1,12 @@
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// Phase 2: the hardcoded prompt is gone. The window now loads a developer-authored JSON
-// character sheet and builds the system prompt via the CRE assembler from sheet + emotion.
-// No character-builder UI yet (that's Phase 2 chunk 3) — you test the whole data path by
-// choosing the bot id and slider values in the Inspector, then pressing Play.
+// Phase 3: each player turn now does Director-scoring -> sanity update -> generation.
+// Sanity is TRACKED and shown live in a debug panel, but does NOT yet change how the bot
+// talks (that's Phase 4). Debug panel is visible for building; it gets hidden later.
 public class ChatWindow : MonoBehaviour
 {
     [Header("UI refs")]
@@ -15,25 +15,29 @@ public class ChatWindow : MonoBehaviour
     public TMP_Text transcriptText;
     public ScrollRect scrollRect;
 
+    [Header("Debug panel (Phase 3 - hidden later)")]
+    [Tooltip("A TMP_Text somewhere on screen to show sanity + scores live. Optional but recommended.")]
+    public TMP_Text debugText;
+
     [Header("Which bot to load")]
-    [Tooltip("Filename (no .json) under Assets/Resources/Characters/")]
     public string characterId = "bartleby";
 
     [Header("Emotion source")]
-    [Tooltip("If true, use the sliders below. If false, use the sheet's authored baseline.")]
     public bool overrideEmotion = false;
+    [Range(1, 10)] public int mood = 5;
+    [Range(1, 10)] public int boldness = 5;
+    [Range(1, 10)] public int friendliness = 5;
+    [Range(1, 10)] public int anger = 5;
+    [Range(1, 10)] public int trust = 5;
+    [Range(1, 10)] public int playfulness = 5;
+    [Range(1, 10)] public int talkativeness = 5;
+    [Range(1, 10)] public int confidence = 5;
 
-    [Header("Test sliders (used only if Override Emotion is on)")]
-    [Range(1, 10)] public int mood = 5;          // Sad <-> Happy
-    [Range(1, 10)] public int boldness = 5;      // Shy <-> Bold
-    [Range(1, 10)] public int friendliness = 5;  // Cold <-> Friendly
-    [Range(1, 10)] public int anger = 5;         // Calm <-> Angry
-    [Range(1, 10)] public int trust = 5;         // Suspicious <-> Trusting
-    [Range(1, 10)] public int playfulness = 5;   // Serious <-> Playful
-    [Range(1, 10)] public int talkativeness = 5; // Quiet <-> Talkative
-    [Range(1, 10)] public int confidence = 5;    // Insecure <-> Confident
+    [Header("Sanity (tune these live in Play mode)")]
+    public SanityModel sanity = new SanityModel();
 
     private IDialogueProvider _provider;
+    private IDirectorProvider _director;
     private readonly List<ChatMessage> _history = new List<ChatMessage>();
     private CharacterSheet _sheet;
     private string _systemPrompt;
@@ -41,6 +45,7 @@ public class ChatWindow : MonoBehaviour
     private void Awake()
     {
         _provider = new RelayDialogueProvider("http://localhost:8000");
+        _director = new RelayDirectorProvider("http://localhost:8000");
 
         _sheet = CharacterLoader.Load(characterId);
         if (_sheet == null)
@@ -51,25 +56,19 @@ public class ChatWindow : MonoBehaviour
         {
             EmotionProfile emotion = overrideEmotion ? BuildSliderProfile() : _sheet.EmotionBaseline;
             _systemPrompt = PromptAssembler.Assemble(_sheet, emotion);
-            Debug.Log($"[assembled prompt]\n{_systemPrompt}");   // inspect what the model sees
         }
 
         sendButton.onClick.AddListener(OnSend);
         inputField.onSubmit.AddListener(_ => OnSend());
+        RefreshDebug(null, default);
     }
 
     private EmotionProfile BuildSliderProfile()
     {
         return new EmotionProfile
         {
-            Mood = mood,
-            Boldness = boldness,
-            Friendliness = friendliness,
-            Anger = anger,
-            Trust = trust,
-            Playfulness = playfulness,
-            Talkativeness = talkativeness,
-            Confidence = confidence
+            Mood = mood, Boldness = boldness, Friendliness = friendliness, Anger = anger,
+            Trust = trust, Playfulness = playfulness, Talkativeness = talkativeness, Confidence = confidence
         };
     }
 
@@ -88,10 +87,29 @@ public class ChatWindow : MonoBehaviour
 
         try
         {
+            // 1) DIRECTOR scores the player's message (first API call).
+            var ctx = new DirectorContext
+            {
+                BotName = _sheet.Name,
+                BotTraits = string.Join(", ", _sheet.Traits),
+                BotKnows = string.Join("; ", _sheet.Knows),
+                BotDoesNotKnow = string.Join("; ", _sheet.DoesNotKnow),
+                PlayerMessage = userText,
+                RecentContext = RecentContext()
+            };
+            DirectorScore score = await _director.ScoreAsync(ctx);
+
+            // 2) SANITY updates from the scores + time decay (local, no API).
+            SanityModel.TurnResult turn =
+                sanity.ApplyTurn(score.Rudeness, score.OffTopic, score.Contradiction);
+
+            // 3) GENERATION produces the reply (second API call). Unchanged for now —
+            //    Phase 4 will feed the sanity band in here as corruption modifiers.
             DialogueResult result = await _provider.GenerateAsync(_systemPrompt, _history);
             _history.Add(new ChatMessage("assistant", result.Reply));
             Append($"<b>{_sheet.Name}:</b> {result.Reply}");
-            Debug.Log($"[tokens] in={result.InputTokens} out={result.OutputTokens}");
+
+            RefreshDebug(score, turn);
         }
         catch (System.Exception e)
         {
@@ -101,6 +119,32 @@ public class ChatWindow : MonoBehaviour
         {
             SetBusy(false);
         }
+    }
+
+    // Last few lines of transcript, for the Director to judge contradiction in context.
+    private string RecentContext()
+    {
+        int take = Mathf.Min(6, _history.Count);
+        var sb = new StringBuilder();
+        for (int i = _history.Count - take; i < _history.Count; i++)
+            sb.AppendLine($"{_history[i].role}: {_history[i].content}");
+        return sb.ToString();
+    }
+
+    private void RefreshDebug(DirectorScore score, SanityModel.TurnResult turn)
+    {
+        if (debugText == null) return;
+        var sb = new StringBuilder();
+        sb.AppendLine($"<b>SANITY: {sanity.current:0.0} / {sanity.max:0}   [{sanity.Band}]</b>");
+        if (score != null)
+        {
+            sb.AppendLine($"Director: rude={score.Rudeness} offTopic={score.OffTopic} contra={score.Contradiction}");
+            sb.AppendLine($"reason: {score.Reasoning}");
+            sb.AppendLine($"loss this turn: -{turn.totalLoss:0.0}  " +
+                          $"(time -{turn.timeLoss:0.0}, rude -{turn.rudenessLoss:0.0}, " +
+                          $"off -{turn.offTopicLoss:0.0}, contra -{turn.contradictionLoss:0.0})");
+        }
+        debugText.text = sb.ToString();
     }
 
     private void Append(string line)
