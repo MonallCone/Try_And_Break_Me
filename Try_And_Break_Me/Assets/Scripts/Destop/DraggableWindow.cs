@@ -95,6 +95,18 @@ public class DraggableWindow : MonoBehaviour, IPointerDownHandler
         contentRt.offsetMax = new Vector2(0f, -barH);   // leave room for the title bar
         win.ContentArea = contentRt;
 
+        // Resize grip (bottom-right corner). Sits above content so it's grabbable.
+        var gripGo = new GameObject("ResizeGrip", typeof(RectTransform), typeof(Image), typeof(WindowResizeHandle));
+        var gripRt = gripGo.GetComponent<RectTransform>();
+        gripRt.SetParent(rt, false);
+        gripRt.anchorMin = new Vector2(1f, 0f);
+        gripRt.anchorMax = new Vector2(1f, 0f);
+        gripRt.pivot = new Vector2(1f, 0f);
+        gripRt.sizeDelta = new Vector2(18f, 18f);
+        gripRt.anchoredPosition = Vector2.zero;
+        gripGo.GetComponent<Image>().color = new Color(0.4f, 0.42f, 0.5f, 0.8f);
+        gripGo.GetComponent<WindowResizeHandle>().Init(win);
+
         return win;
     }
 
