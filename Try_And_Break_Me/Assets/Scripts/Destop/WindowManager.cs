@@ -24,9 +24,9 @@ public class WindowManager : MonoBehaviour
     public IReadOnlyList<DraggableWindow> Windows => _windows;
 
     // Create a new window with a title and a given pixel size, positioned with a cascade offset.
-    public DraggableWindow OpenWindow(string title, Vector2 size)
+    public DraggableWindow OpenWindow(string title, Vector2 size, Sprite icon = null)
     {
-        var win = DraggableWindow.Create(windowLayer, title, size, this);
+        var win = DraggableWindow.Create(windowLayer, title, size, this, icon);
 
         // Cascade so new windows don't stack exactly on top of each other.
         float offset = _windows.Count * 30f;

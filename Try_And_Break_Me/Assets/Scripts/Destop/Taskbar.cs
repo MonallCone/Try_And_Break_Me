@@ -29,19 +29,36 @@ public class Taskbar : MonoBehaviour
     {
         if (buttonContainer == null) return;
 
-        var go = new GameObject($"Task_{win.Title}", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
+        var go = new GameObject($"Task_{win.Title}", typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement), typeof(HorizontalLayoutGroup));
         var rt = go.GetComponent<RectTransform>();
         rt.SetParent(buttonContainer, false);
         go.GetComponent<Image>().color = new Color(0.22f, 0.24f, 0.30f, 1f);
         go.GetComponent<LayoutElement>().preferredWidth = 140f;
         go.GetComponent<LayoutElement>().preferredHeight = 30f;
         go.GetComponent<Button>().onClick.AddListener(() => _manager?.Focus(win));
+        var buttonHlg = go.GetComponent<HorizontalLayoutGroup>();
+        buttonHlg.spacing = 4f; buttonHlg.padding = new RectOffset(4, 6, 3, 3);
+        buttonHlg.childControlWidth = true; buttonHlg.childControlHeight = true;
+        buttonHlg.childForceExpandWidth = false; buttonHlg.childForceExpandHeight = true;
+        buttonHlg.childAlignment = TextAnchor.MiddleLeft;
+
+        // Optional icon on the taskbar button
+        if (win.Icon != null)
+        {
+            var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            iconGo.GetComponent<RectTransform>().SetParent(rt, false);
+            var iconImg = iconGo.GetComponent<Image>();
+            iconImg.sprite = win.Icon; iconImg.preserveAspect = true;
+            var iconLe = iconGo.AddComponent<LayoutElement>();
+            iconLe.preferredWidth = 22; iconLe.preferredHeight = 22;
+            iconLe.minWidth = 22; iconLe.minHeight = 22;
+        }
 
         var labelGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
         var labelRt = labelGo.GetComponent<RectTransform>();
         labelRt.SetParent(rt, false);
-        labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;
-        labelRt.offsetMin = new Vector2(8f, 0f); labelRt.offsetMax = new Vector2(-8f, 0f);
+        var labelLe = labelGo.AddComponent<LayoutElement>();
+        labelLe.flexibleWidth = 1f;
         var label = labelGo.GetComponent<TextMeshProUGUI>();
         label.text = win.Title;
         label.fontSize = 12f;

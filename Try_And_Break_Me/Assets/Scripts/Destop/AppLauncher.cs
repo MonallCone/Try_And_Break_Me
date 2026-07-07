@@ -3,26 +3,26 @@ using UnityEngine;
 // Glue between the AI Virtual Friend icon and the window system.
 // Point the icon's onOpen event at OpenCreator().
 //
-// Flow: icon -> creator window -> Create -> real chat window running the Phase 3 loop.
+// Flow: icon -> creator (page 1: template+icon+info, page 2: sliders) -> Create -> chat window.
+// The chosen icon travels to the chat window and shows on its title bar + taskbar button.
 public class AppLauncher : MonoBehaviour
 {
     public WindowManager windowManager;
 
-    [Tooltip("Size of the creator window.")]
-    public Vector2 creatorSize = new Vector2(460f, 560f);
+    [Header("Character icons (assign sprites here)")]
+    [Tooltip("The palette of icons the player can choose from in the creator. Drop your Kenney/etc sprites here.")]
+    public Sprite[] characterIcons;
 
-    [Tooltip("Size of a chat window.")]
+    [Header("Window sizes")]
+    public Vector2 creatorSize = new Vector2(460f, 620f);
     public Vector2 chatSize = new Vector2(420f, 560f);
 
     [Header("Relay")]
     public string baseUrl = "http://localhost:8000";
 
     [Header("Sanity")]
-    [Tooltip("Starting sanity settings applied to each new bot's meter. In the hive (Phase 5) " +
-             "this becomes ONE shared meter; for now each chat gets its own copy of these values.")]
     public SanityModel sanityTemplate = new SanityModel();
 
-    // Providers are created once and reused by every chat window.
     private IDialogueProvider _provider;
     private IDirectorProvider _director;
 
@@ -37,20 +37,19 @@ public class AppLauncher : MonoBehaviour
         var win = windowManager.OpenWindow("AI Virtual Friend — Create", creatorSize);
 
         var creator = new CreatorWindow();
+        creator.SetIcons(characterIcons);
         creator.Build(win.ContentArea);
-        creator.OnCreate += (sheet, emotion) =>
+        creator.OnCreate += (sheet, emotion, icon) =>
         {
             windowManager.CloseWindow(win);
-            OpenChat(sheet, emotion);
+            OpenChat(sheet, emotion, icon);
         };
     }
 
-    public void OpenChat(CharacterSheet sheet, EmotionProfile emotion)
+    public void OpenChat(CharacterSheet sheet, EmotionProfile emotion, Sprite icon)
     {
-        var win = windowManager.OpenWindow(sheet.Name, chatSize);
+        var win = windowManager.OpenWindow(sheet.Name, chatSize, icon);
 
-        // Each bot gets its own sanity meter for now, seeded from the template.
-        // Phase 5 swaps this for a single shared meter passed to all chats.
         var sanity = new SanityModel
         {
             max = sanityTemplate.max,
