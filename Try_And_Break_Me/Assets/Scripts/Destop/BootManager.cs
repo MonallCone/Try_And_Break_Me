@@ -1,8 +1,6 @@
 using UnityEngine;
 using TMPro;
 
-// Handles the fake-OS boot flow: a login screen (enter a name) that transitions to the desktop.
-// The name is captured but unimportant for now. Wire the two screen GameObjects and the input.
 public class BootManager : MonoBehaviour
 {
     [Header("Screens (full-screen panels)")]

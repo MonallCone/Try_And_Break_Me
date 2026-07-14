@@ -3,9 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// Bottom taskbar with a live clock and one button per open window (click to focus it).
-// Buttons are created in code as windows open. Keeps the fake-OS feel and helps the player
-// manage multiple bot windows in the hive.
 public class Taskbar : MonoBehaviour
 {
     [Tooltip("A horizontal strip (RectTransform) where window buttons are added.")]

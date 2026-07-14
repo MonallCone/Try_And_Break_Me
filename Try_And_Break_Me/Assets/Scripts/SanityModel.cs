@@ -1,16 +1,6 @@
 using System;
 using UnityEngine;
 
-// The hidden sanity value and all the rules that move it. Kept as a plain serializable class
-// (not a MonoBehaviour) so the tuning knobs show in the Inspector when embedded in ChatWindow,
-// and so the math is testable on its own. NOTHING here calls the API — sanity is local logic.
-//
-// Phase 3 scope: TRACK sanity from the Director's scores + time decay. It does NOT yet change
-// how the bot talks — that's Phase 4 (corruption bands). Here we just prove the number moves
-// believably.
-//
-// In the hive (Phase 5) there will be ONE shared SanityModel for all bots. For now, one bot.
-[Serializable]
 public class SanityModel
 {
     [Header("Range")]

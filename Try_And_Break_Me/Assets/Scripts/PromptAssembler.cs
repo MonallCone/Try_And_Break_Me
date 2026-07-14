@@ -1,15 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
 
-// THE HEART OF THE CRE.
-// Turns developer-authored constraints (the sheet) + the player's locked sliders (emotion)
-// into the single system string the model sees. This is the "amplifying authored intent"
-// claim made concrete: the developer wrote the bounds, the sliders shift tone WITHIN them,
-// and nothing the model produces escapes this assembled space.
-//
-// Design note for later phases: corruption modifiers (Phase 4) and the Director's narrative
-// nudges (Phase 5) will be ANOTHER argument appended here. Keep this the single funnel through
-// which everything reaches the prompt, so the engine stays the one place context is built.
 public static class PromptAssembler
 {
     // Band a 1-10 value into low / mid / high. Mid means "unremarkable on this axis" and we
@@ -63,11 +54,6 @@ public static class PromptAssembler
 
     // The band-to-phrase translation layer. Each axis contributes a concrete tone instruction
     // only when it's distinctive (low or high). Mid (4-7) stays silent by design.
-    //
-    // IMPORTANT CONVENTION: each field is named for its HIGH-end word. A LOW value means the
-    // OPPOSITE word, not a weaker version of the field name. So low Playfulness = serious,
-    // low Anger = even-tempered, low Confidence = insecure. The Low lines below name the
-    // left-hand word of each pair accordingly.
     private static List<string> TranslateEmotion(EmotionProfile e)
     {
         var lines = new List<string>();

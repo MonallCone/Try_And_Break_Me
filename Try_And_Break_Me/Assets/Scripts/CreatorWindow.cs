@@ -74,16 +74,16 @@ public class CreatorWindow
         vlg.childControlWidth = true; vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
-        MakeLabel(page, "Choose your AI Virtual Friend", 18, FontStyles.Bold, 26);
+        MakeLabel(page, "Choose your AI Virtual Friend", 38, FontStyles.Bold, 26);
 
-        MakeLabel(page, "Personality:", 13, FontStyles.Normal, 18);
+        MakeLabel(page, "Personality:", 30, FontStyles.Normal, 18);
         _dropdown = MakeDropdown(page, new List<string>(TemplateIds));
         _dropdown.onValueChanged.AddListener(_ => RefreshInfo());
 
-        MakeLabel(page, "Pick an icon:", 13, FontStyles.Normal, 18);
+        MakeLabel(page, "Pick an icon:", 30, FontStyles.Normal, 18);
         BuildIconPalette(page);
 
-        MakeLabel(page, "About them:", 13, FontStyles.Normal, 18);
+        MakeLabel(page, "About them:", 30, FontStyles.Normal, 18);
         _infoText = BuildScrollableInfo(page);   // read-only, scrollable
 
         MakeButton(page, "Next", () => ShowPage(2), 34,
@@ -107,7 +107,7 @@ public class CreatorWindow
 
         if (_iconPalette.Length == 0)
         {
-            MakeLabel(rowRt, "(no icons assigned yet)", 11, FontStyles.Italic, 20);
+            MakeLabel(rowRt, "(no icons assigned yet)", 38, FontStyles.Italic, 20);
             return;
         }
 
@@ -215,12 +215,12 @@ public class CreatorWindow
         vlg.childControlWidth = true; vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
-        MakeLabel(page, "Set their temperament", 18, FontStyles.Bold, 26);
+        MakeLabel(page, "Set their temperament", 38, FontStyles.Bold, 26);
 
         foreach (var axis in Axes)
             _sliders[axis.field] = MakeSliderRow(page, axis.left, axis.right);
 
-        // Back + Create row
+        // Back + Create rowm
         var rowGo = new GameObject("NavRow", typeof(RectTransform));
         rowGo.GetComponent<RectTransform>().SetParent(page, false);
         AddLayoutHeight(rowGo, 38f);

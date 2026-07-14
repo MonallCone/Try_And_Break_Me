@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Owns the desktop's window layer. Spawns DraggableWindows in code (so you don't hand-build
-// window prefabs), tracks them, and handles focus / z-ordering: the focused window sits on top.
-// This is the core of the fake-OS window system that the hive and the finale both rely on.
+// Owns the desktop's window layer. Spawns DraggableWindows in code tracks them, and handles focus / z-ordering: the focused window sits on top.
 public class WindowManager : MonoBehaviour
 {
     [Tooltip("The RectTransform under which windows live. Usually a full-screen panel on the Canvas.")]

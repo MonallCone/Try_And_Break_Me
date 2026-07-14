@@ -1,12 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-// Plain data class (NOT MonoBehaviour / ScriptableObject) so it maps 1:1 to JSON and stays
-// reusable for the relay payloads and the dark-profile swap later. One representation end to end.
-//
-// This is the lightweight WKB from the plan: a defined character to be in or out of, plus a
-// few facts that can be contradicted. The developer authors these as .json files; the player
-// only sets the sliders (EmotionProfile, in its own file).
 public class CharacterSheet
 {
     [JsonProperty("id")]            public string Id = "";

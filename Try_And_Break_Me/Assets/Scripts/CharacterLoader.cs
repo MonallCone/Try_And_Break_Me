@@ -2,8 +2,6 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 // Loads developer-authored character sheets from Resources/Characters/<id>.json
-// Resources.Load gives you the file's text; Newtonsoft turns it into a CharacterSheet.
-// Resource paths are WITHOUT the .json extension and relative to a Resources folder.
 public static class CharacterLoader
 {
     private const string FOLDER = "Characters/";   // Assets/Resources/Characters/*.json

@@ -4,12 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// A fully self-contained chat, built IN CODE inside a spawned window's ContentArea.
-// Receives the bot (sheet + emotion) from the creator, plus a SanityModel (shared in the hive
-// later). Runs the Phase 3 loop: Director score -> sanity update -> generation.
-//
-// The scrolling transcript is built with the exact component chain that works (Vertical Layout
-// Group + Content Size Fitter on the content, wrapping text), so you never hand-configure it.
 public class ChatController
 {
     private readonly CharacterSheet _sheet;

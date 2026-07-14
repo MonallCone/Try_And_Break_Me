@@ -2,8 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-// A desktop shortcut icon. Double-click opens something (wired via the onOpen event in the
-// Inspector, or in code). This is your "AI Virtual Friend" shortcut that launches the creator.
 public class DesktopIcon : MonoBehaviour, IPointerClickHandler
 {
     [Tooltip("What happens when the icon is double-clicked.")]

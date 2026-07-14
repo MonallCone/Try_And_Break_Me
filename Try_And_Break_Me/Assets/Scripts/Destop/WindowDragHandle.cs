@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// Sits on the title bar. Dragging it moves the parent window. Kept separate from DraggableWindow
-// so only the title bar is a drag handle (dragging the content area shouldn't move the window).
+// Sits on the title bar. Dragging it moves the parent window.
 public class WindowDragHandle : MonoBehaviour, IBeginDragHandler, IDragHandler, IPointerDownHandler
 {
     private DraggableWindow _window;

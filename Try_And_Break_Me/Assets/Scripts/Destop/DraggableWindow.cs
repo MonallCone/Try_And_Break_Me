@@ -3,11 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-// A draggable, closable, focusable window whose chrome is built ENTIRELY IN CODE so you never
-// hand-assemble window prefabs in the Inspector. Call DraggableWindow.Create(...) and you get a
-// title bar (draggable), a close button, and an empty Content area to put anything in.
-//
-// Your chat UI, the creator screen, etc. all become "content" placed inside ContentArea.
+// chat UI, the creator screen.
 public class DraggableWindow : MonoBehaviour, IPointerDownHandler
 {
     public RectTransform RectTransform { get; private set; }

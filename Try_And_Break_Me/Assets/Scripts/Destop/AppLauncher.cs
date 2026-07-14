@@ -1,10 +1,5 @@
 using UnityEngine;
 
-// Glue between the AI Virtual Friend icon and the window system.
-// Point the icon's onOpen event at OpenCreator().
-//
-// Flow: icon -> creator (page 1: template+icon+info, page 2: sliders) -> Create -> chat window.
-// The chosen icon travels to the chat window and shows on its title bar + taskbar button.
 public class AppLauncher : MonoBehaviour
 {
     public WindowManager windowManager;

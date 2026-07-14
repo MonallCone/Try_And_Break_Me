@@ -1,10 +1,5 @@
 using Newtonsoft.Json;
 
-// The eight emotional axes. Each value is 1-10. The player sets these at creation and they
-// LOCK for the session. Each field is named for its HIGH-end word; a LOW value means the
-// OPPOSITE word (low Playfulness = serious, low Anger = even-tempered, low Confidence =
-// insecure). PromptAssembler.TranslateEmotion honours that convention.
-//
 // Slider labels for the builder UI (left = 1, right = 10):
 //   Sad <-> Happy        (mood)
 //   Shy <-> Bold         (boldness)

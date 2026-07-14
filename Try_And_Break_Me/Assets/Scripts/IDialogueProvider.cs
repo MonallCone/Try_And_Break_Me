@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-// The seam the entire plan rests on. The game NEVER calls HTTP or the model directly;
-// it only ever calls IDialogueProvider. Swapping cloud-for-local later (or mocking for
-// tests) is a one-class change: write another implementation, change one line of wiring.
 public interface IDialogueProvider
 {
     // system  = assembled character context (+ corruption modifiers, from Phase 4)
