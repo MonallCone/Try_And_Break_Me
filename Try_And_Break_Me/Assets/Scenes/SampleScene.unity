@@ -473,7 +473,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter text...
+  m_text: Enter Name....
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1596,14 +1596,6 @@ MonoBehaviour:
   creatorSize: {x: 460, y: 560}
   chatSize: {x: 420, y: 560}
   baseUrl: http://localhost:8000
-  sanityTemplate:
-    max: 100
-    current: 100
-    timeDecayPerTurn: 1.5
-    rudenessWeight: 2
-    offTopicWeight: 1.5
-    contradictionWeight: 3
-    neglectPerIgnoredBot: 0
 --- !u!1 &1125404879
 GameObject:
   m_ObjectHideFlags: 0
