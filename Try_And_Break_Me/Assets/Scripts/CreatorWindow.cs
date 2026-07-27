@@ -25,7 +25,7 @@ public class CreatorWindow
         ("confidence",    "Insecure",   "Confident"),
     };
 
-    private static readonly string[] TemplateIds = { "bartleby", "vesper" };
+    private static readonly string[] TemplateIds = { "lauren", "stuart", "alex" };
 
     private readonly Dictionary<string, Slider> _sliders = new Dictionary<string, Slider>();
     private TMP_Dropdown _dropdown;
@@ -74,16 +74,16 @@ public class CreatorWindow
         vlg.childControlWidth = true; vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
-        MakeLabel(page, "Choose your AI Virtual Friend", 38, FontStyles.Bold, 26);
+        MakeLabel(page, "Train a new AI assistant", 22, FontStyles.Bold, 32);
 
-        MakeLabel(page, "Personality:", 30, FontStyles.Normal, 18);
+        MakeLabel(page, "Which role should it learn?", 16, FontStyles.Normal, 24);
         _dropdown = MakeDropdown(page, new List<string>(TemplateIds));
         _dropdown.onValueChanged.AddListener(_ => RefreshInfo());
 
-        MakeLabel(page, "Pick an icon:", 30, FontStyles.Normal, 18);
+        MakeLabel(page, "Pick an icon:", 16, FontStyles.Normal, 24);
         BuildIconPalette(page);
 
-        MakeLabel(page, "About them:", 30, FontStyles.Normal, 18);
+        MakeLabel(page, "About them:", 16, FontStyles.Normal, 24);
         _infoText = BuildScrollableInfo(page);   // read-only, scrollable
 
         MakeButton(page, "Next", () => ShowPage(2), 34,
@@ -107,7 +107,7 @@ public class CreatorWindow
 
         if (_iconPalette.Length == 0)
         {
-            MakeLabel(rowRt, "(no icons assigned yet)", 38, FontStyles.Italic, 20);
+            MakeLabel(rowRt, "(no icons assigned yet)", 11, FontStyles.Italic, 20);
             return;
         }
 
@@ -178,7 +178,7 @@ public class CreatorWindow
         var textGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         textGo.GetComponent<RectTransform>().SetParent(contentRt, false);
         var t = textGo.GetComponent<TextMeshProUGUI>();
-        t.fontSize = 13.5f; t.color = Color.black;
+        t.fontSize = 17f; t.color = Color.black;
         t.textWrappingMode = TextWrappingModes.Normal;
         return t;
     }
@@ -215,12 +215,12 @@ public class CreatorWindow
         vlg.childControlWidth = true; vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
-        MakeLabel(page, "Set their temperament", 38, FontStyles.Bold, 26);
+        MakeLabel(page, "Calibrate for a human touch", 22, FontStyles.Bold, 32);
 
         foreach (var axis in Axes)
             _sliders[axis.field] = MakeSliderRow(page, axis.left, axis.right);
 
-        // Back + Create rowm
+        // Back + Create row
         var rowGo = new GameObject("NavRow", typeof(RectTransform));
         rowGo.GetComponent<RectTransform>().SetParent(page, false);
         AddLayoutHeight(rowGo, 38f);
@@ -301,7 +301,7 @@ public class CreatorWindow
         labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;
         labelRt.offsetMin = new Vector2(10, 0); labelRt.offsetMax = new Vector2(-25, 0);
         var label = labelGo.GetComponent<TextMeshProUGUI>();
-        label.color = Color.black; label.fontSize = 13f; label.alignment = TextAlignmentOptions.Left;
+        label.color = Color.black; label.fontSize = 17f; label.alignment = TextAlignmentOptions.Left;
         dd.captionText = label;
 
         var templateGo = new GameObject("Template", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(Canvas), typeof(GraphicRaycaster));
@@ -333,7 +333,7 @@ public class CreatorWindow
         itemLabelRt.anchorMin = Vector2.zero; itemLabelRt.anchorMax = Vector2.one;
         itemLabelRt.offsetMin = new Vector2(10, 0); itemLabelRt.offsetMax = new Vector2(-10, 0);
         var itemLabel = itemLabelGo.GetComponent<TextMeshProUGUI>();
-        itemLabel.color = Color.black; itemLabel.fontSize = 13f;
+        itemLabel.color = Color.black; itemLabel.fontSize = 17f;
         itemLabel.alignment = TextAlignmentOptions.Left;
 
         dd.template = templateRt;
@@ -348,14 +348,14 @@ public class CreatorWindow
     {
         var rowGo = new GameObject($"Row_{rightLabel}", typeof(RectTransform));
         rowGo.GetComponent<RectTransform>().SetParent(parent, false);
-        AddLayoutHeight(rowGo, 28f);
+        AddLayoutHeight(rowGo, 32f);
         var hlg = rowGo.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = 6f; hlg.childControlWidth = true; hlg.childControlHeight = true;
         hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = true;
 
-        MakeInlineLabel(rowGo.GetComponent<RectTransform>(), leftLabel, TextAlignmentOptions.Right, 70);
+        MakeInlineLabel(rowGo.GetComponent<RectTransform>(), leftLabel, TextAlignmentOptions.Right, 88);
         var slider = MakeSlider(rowGo.GetComponent<RectTransform>());
-        MakeInlineLabel(rowGo.GetComponent<RectTransform>(), rightLabel, TextAlignmentOptions.Left, 70);
+        MakeInlineLabel(rowGo.GetComponent<RectTransform>(), rightLabel, TextAlignmentOptions.Left, 88);
         return slider;
     }
 
@@ -364,7 +364,7 @@ public class CreatorWindow
         var go = new GameObject("L", typeof(RectTransform), typeof(TextMeshProUGUI));
         go.GetComponent<RectTransform>().SetParent(parent, false);
         var t = go.GetComponent<TextMeshProUGUI>();
-        t.text = text; t.fontSize = 13f; t.color = Color.black;
+        t.text = text; t.fontSize = 16f; t.color = Color.black;
         t.alignment = align;
         var le = go.AddComponent<LayoutElement>();
         le.preferredWidth = width; le.minWidth = width;
@@ -443,7 +443,7 @@ public class CreatorWindow
         labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;
         labelRt.offsetMin = Vector2.zero; labelRt.offsetMax = Vector2.zero;
         var label = labelGo.GetComponent<TextMeshProUGUI>();
-        label.text = text; label.fontSize = 15f; label.color = Color.white;
+        label.text = text; label.fontSize = 18f; label.color = Color.white;
         label.alignment = TextAlignmentOptions.Center;
     }
 }

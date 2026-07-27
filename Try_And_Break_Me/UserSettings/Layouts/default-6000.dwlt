@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 2560
     height: 1349
   m_ShowMode: 4
-  m_Title: Scene
+  m_Title: Game
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -273,8 +273,8 @@ MonoBehaviour:
     y: 0
     width: 500
     height: 1293
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 76}
+  m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 19}
   m_Panes:
   - {fileID: 19}
@@ -708,7 +708,12 @@ MonoBehaviour:
       m_LastClickedID:
         m_Data: 0
       m_ExpandedIDs:
+      - m_Data: -25130
+      - m_Data: -7270
       - m_Data: -1316
+      - m_Data: 48996
+      - m_Data: 49014
+      - m_Data: 49108
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1504,7 +1509,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Resources/Characters
+    - Assets/Scripts/Destop
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1514,7 +1519,7 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Resources/Characters
+  - Assets/Scripts/Destop
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Users\conal\Documents\Ulster_Final_Game\Try_And_Break_Me\Try_And_Break_Me
   m_LockTracker:
@@ -1523,15 +1528,15 @@ MonoBehaviour:
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs:
-    - m_Data: 49528
+    - m_Data: 49556
     m_LastClickedID:
-      m_Data: 49528
+      m_Data: 49556
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 49430
-    - m_Data: 49432
-    - m_Data: 49434
-    - m_Data: 49522
+    - m_Data: 49454
+    - m_Data: 49456
+    - m_Data: 49458
+    - m_Data: 49546
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1564,9 +1569,9 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 49430
-    - m_Data: 49432
-    - m_Data: 49434
+    - m_Data: 49454
+    - m_Data: 49456
+    - m_Data: 49458
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1600,8 +1605,8 @@ MonoBehaviour:
     - m_Data: 0
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
+      m_Name: CompanyChatContent
+      m_OriginalName: CompanyChatContent
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
@@ -1609,10 +1614,10 @@ MonoBehaviour:
         width: 0
         height: 0
       m_UserData:
-        m_Data: 0
+        m_Data: 52170
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 11
+      m_OriginalEventType: 0
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
       m_ClientGUIView: {fileID: 10}

@@ -133,7 +133,7 @@ public class ChatController
         nameGo.GetComponent<RectTransform>().SetParent(panelRt, false);
         var nameT = nameGo.GetComponent<TextMeshProUGUI>();
         nameT.text = _sheet.Name;
-        nameT.fontSize = 15f; nameT.fontStyle = FontStyles.Bold;
+        nameT.fontSize = 19f; nameT.fontStyle = FontStyles.Bold;
         nameT.color = Color.black;
         nameT.alignment = TextAlignmentOptions.Center;
         nameT.textWrappingMode = TextWrappingModes.Normal;
@@ -189,7 +189,7 @@ public class ChatController
         textGo.GetComponent<RectTransform>().SetParent(contentRt, false);
         _transcript = textGo.GetComponent<TextMeshProUGUI>();
         _transcript.text = "";
-        _transcript.fontSize = 14f;
+        _transcript.fontSize = 18f;
         _transcript.color = Color.black;
         _transcript.textWrappingMode = TextWrappingModes.Normal;
         _transcript.overflowMode = TextOverflowModes.Overflow;
@@ -202,7 +202,7 @@ public class ChatController
         var le = go.AddComponent<LayoutElement>();
         le.minHeight = 70f; le.preferredHeight = 70f;
         _debug = go.GetComponent<TextMeshProUGUI>();
-        _debug.fontSize = 11f;
+        _debug.fontSize = 14f;
         _debug.color = new Color(0.15f, 0.4f, 0.15f, 1f); // dark green, readable on light
         _debug.alignment = TextAlignmentOptions.TopLeft;
     }
@@ -236,7 +236,7 @@ public class ChatController
         placeholderGo.GetComponent<RectTransform>().SetParent(textAreaRt, false);
         Stretch(placeholderGo.GetComponent<RectTransform>());
         var placeholder = placeholderGo.GetComponent<TextMeshProUGUI>();
-        placeholder.text = "Say something..."; placeholder.fontSize = 13f;
+        placeholder.text = "Say something..."; placeholder.fontSize = 17f;
         placeholder.color = new Color(0.5f, 0.5f, 0.5f, 1f);
         placeholder.alignment = TextAlignmentOptions.Left;
 
@@ -244,7 +244,7 @@ public class ChatController
         textGo.GetComponent<RectTransform>().SetParent(textAreaRt, false);
         Stretch(textGo.GetComponent<RectTransform>());
         var inputText = textGo.GetComponent<TextMeshProUGUI>();
-        inputText.fontSize = 13f; inputText.color = Color.black;
+        inputText.fontSize = 17f; inputText.color = Color.black;
         inputText.alignment = TextAlignmentOptions.Left;
 
         _input.textViewport = textAreaRt;
@@ -265,7 +265,7 @@ public class ChatController
         btnLabelGo.GetComponent<RectTransform>().SetParent(btnGo.transform, false);
         Stretch(btnLabelGo.GetComponent<RectTransform>());
         var btnLabel = btnLabelGo.GetComponent<TextMeshProUGUI>();
-        btnLabel.text = "Send"; btnLabel.fontSize = 13f; btnLabel.color = Color.white;
+        btnLabel.text = "Send"; btnLabel.fontSize = 17f; btnLabel.color = Color.white;
         btnLabel.alignment = TextAlignmentOptions.Center;
     }
 
