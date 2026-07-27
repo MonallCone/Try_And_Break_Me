@@ -4,6 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// A fully self-contained chat, built IN CODE inside a spawned window's ContentArea.
+// Receives the bot (sheet + emotion) from the creator, plus a SanityModel (shared in the hive
+// later). Runs the Phase 3 loop: Director score -> sanity update -> generation.
+//
+// The scrolling transcript is built with the exact component chain that works (Vertical Layout
+// Group + Content Size Fitter on the content, wrapping text), so you never hand-configure it.
 public class ChatController
 {
     private readonly CharacterSheet _sheet;
@@ -35,6 +41,23 @@ public class ChatController
         _systemPrompt = PromptAssembler.Assemble(sheet, emotion);
     }
 
+    // The bot id this chat is for (used by the registry so events can find this window).
+    public string BotId => _sheet != null ? _sheet.Id : "";
+    public string BotName => _sheet != null ? _sheet.Name : "";
+    public SanityModel Sanity => _sanity;
+
+    // Inject a SCRIPTED bot line that bypasses the LLM entirely. This is the horror mechanic:
+    // a Sanity Event calls this to make the bot "say" something authored, with no API call.
+    // Optionally style it (reddish) to mark it as a degradation moment.
+    public void InjectBotLine(string line, bool ominous = false)
+    {
+        if (_transcript == null) return;
+        string body = ominous ? $"<color=#b03030>{line}</color>" : line;
+        Append($"<b>{BotName}:</b> {body}");
+        // Deliberately NOT added to _history, so the scripted line stays outside the bot's normal
+        // LLM memory and doesn't get "explained away" on the next turn.
+    }
+
     // Build the chat UI inside the given window content area.
     public void Build(RectTransform content)
     {
@@ -52,6 +75,12 @@ public class ChatController
         BuildTopRow(root);       // transcript + icon panel, flexible height
         BuildDebug(root);        // small fixed
         BuildInputRow(root);     // fixed
+
+        ChatRegistry.Register(this);   // so Sanity Events can find this chat
+
+        // Unregister automatically when the window (this content) is destroyed.
+        var relay = root.gameObject.AddComponent<DestroyRelay>();
+        relay.onDestroy = () => ChatRegistry.Unregister(this);
 
         RefreshDebug(null, default);
     }
