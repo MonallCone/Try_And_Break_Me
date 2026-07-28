@@ -9,9 +9,15 @@ public class AppLauncher : MonoBehaviour
 {
     public WindowManager windowManager;
 
-    [Header("Character icons (assign sprites here)")]
-    [Tooltip("The palette of icons the player can choose from in the creator. Drop your Kenney/etc sprites here.")]
-    public Sprite[] characterIcons;
+    [Header("Bot icons (one per role)")]
+    public Sprite laurenIcon;
+    public Sprite stuartIcon;
+    public Sprite alexIcon;
+
+    [Header("App icons (shown on taskbar buttons)")]
+    public Sprite emailIcon;
+    public Sprite companyChatIcon;
+    public Sprite tasksIcon;
 
     [Header("Window sizes")]
     public Vector2 creatorSize = new Vector2(460f, 620f);
@@ -56,7 +62,7 @@ public class AppLauncher : MonoBehaviour
 
     public void OpenEmail()
     {
-        var win = windowManager.OpenWindow("Email", emailSize);
+        var win = windowManager.OpenWindow("Email", emailSize, emailIcon);
         var app = new EmailApp();
         app.Build(win.ContentArea);   // reads from the persistent Mailbox
     }
@@ -66,7 +72,7 @@ public class AppLauncher : MonoBehaviour
 
     public void OpenCompanyChat()
     {
-        var win = windowManager.OpenWindow("Company Chat", companyChatSize);
+        var win = windowManager.OpenWindow("Company Chat", companyChatSize, companyChatIcon);
         // CompanyChatApp is a MonoBehaviour (needs Update for the timer), so attach it to the
         // window content object and let it build its own UI.
         var app = win.ContentArea.gameObject.AddComponent<CompanyChatApp>();
@@ -76,6 +82,14 @@ public class AppLauncher : MonoBehaviour
     public void OpenChat(CharacterSheet sheet, EmotionProfile emotion, Sprite icon)
     {
         var win = windowManager.OpenWindow(sheet.Name, chatSize, icon);
+
+        // Dock the bot window to the right edge (stacks with other bots; walls the player in).
+        BotDock.Init(windowManager.windowLayer);
+        BotDock.Dock(win);
+        win.AddDockButton();
+        // Release the slot when this bot window closes.
+        var relay = win.gameObject.AddComponent<DestroyRelay>();
+        relay.onDestroy = () => BotDock.Release(win);
 
         var sanity = new SanityModel
         {
@@ -94,9 +108,5 @@ public class AppLauncher : MonoBehaviour
         // Tell the story a bot was created (drives beat 7's lonely-spam, later demands, etc.).
         if (GameState.I) GameState.I.RegisterBotCreated();
         if (StoryDirector.I) StoryDirector.I.OnBotCreated(sheet);
-    }
-
-    public void OpenTasks(){
-        
     }
 }

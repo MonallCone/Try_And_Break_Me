@@ -3,7 +3,11 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-// chat UI, the creator screen.
+// A draggable, closable, focusable window whose chrome is built ENTIRELY IN CODE so you never
+// hand-assemble window prefabs in the Inspector. Call DraggableWindow.Create(...) and you get a
+// title bar (draggable), a close button, and an empty Content area to put anything in.
+//
+// Your chat UI, the creator screen, etc. all become "content" placed inside ContentArea.
 public class DraggableWindow : MonoBehaviour, IPointerDownHandler
 {
     public RectTransform RectTransform { get; private set; }
@@ -128,6 +132,34 @@ public class DraggableWindow : MonoBehaviour, IPointerDownHandler
 
     // Clicking anywhere on the window focuses it.
     public void OnPointerDown(PointerEventData eventData) => _manager?.Focus(this);
+
+    // Adds a small "dock" button to the title bar (used by bot windows so the player can snap
+    // a dragged-away window back to the right edge). Call after Create.
+    public void AddDockButton()
+    {
+        var barRt = _titleBarImage != null ? _titleBarImage.rectTransform : null;
+        if (barRt == null) return;
+
+        var dockGo = new GameObject("Dock", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button));
+        var dockRt = dockGo.GetComponent<RectTransform>();
+        dockRt.SetParent(barRt, false);
+        dockRt.anchorMin = new Vector2(1f, 0.5f);
+        dockRt.anchorMax = new Vector2(1f, 0.5f);
+        dockRt.pivot = new Vector2(1f, 0.5f);
+        dockRt.sizeDelta = new Vector2(24f, 24f);
+        dockRt.anchoredPosition = new Vector2(-30f, 0f);   // sits left of the close button
+        dockGo.GetComponent<UnityEngine.UI.Image>().color = new Color(0.3f, 0.5f, 0.4f, 1f);
+        dockGo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => BotDock.Redock(this));
+
+        var lblGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        var lblRt = lblGo.GetComponent<RectTransform>();
+        lblRt.SetParent(dockRt, false);
+        lblRt.anchorMin = Vector2.zero; lblRt.anchorMax = Vector2.one;
+        lblRt.offsetMin = Vector2.zero; lblRt.offsetMax = Vector2.zero;
+        var lbl = lblGo.GetComponent<TextMeshProUGUI>();
+        lbl.text = "\u25E8"; lbl.fontSize = 13f; lbl.color = Color.white;   // a little dock glyph
+        lbl.alignment = TextAlignmentOptions.Center;
+    }
 
     public void SetFocused(bool focused)
     {

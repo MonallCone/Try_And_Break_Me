@@ -27,23 +27,37 @@ public class CreatorWindow
 
     private static readonly string[] TemplateIds = { "lauren", "stuart", "alex" };
 
+    // Display info for each role button.
+    private static readonly Dictionary<string, string> RoleTitles = new Dictionary<string, string>
+    {
+        { "lauren", "Lauren \u2014 HR" },
+        { "stuart", "Stuart \u2014 Cyber-Security" },
+        { "alex",   "Alex \u2014 Customer Support" },
+    };
+
     private readonly Dictionary<string, Slider> _sliders = new Dictionary<string, Slider>();
-    private TMP_Dropdown _dropdown;
     private TMP_Text _infoText;
-    private Sprite[] _iconPalette = new Sprite[0];
-    private Sprite _selectedIcon;
-    private readonly List<Image> _iconButtons = new List<Image>();
+
+    // Per-bot icons, supplied by AppLauncher (id -> sprite). The selected role's icon travels
+    // with the created bot; there is no separate icon picker.
+    private Dictionary<string, Sprite> _iconById = new Dictionary<string, Sprite>();
+    private string _selectedId = "lauren";
+    private readonly List<(string id, Image bg)> _roleButtons = new List<(string, Image)>();
 
     private GameObject _page1;
     private GameObject _page2;
 
     public event Action<CharacterSheet, EmotionProfile, Sprite> OnCreate;
 
-    // Called by AppLauncher before Build, to supply the Inspector-assigned icon sprites.
-    public void SetIcons(Sprite[] icons)
+    // Called by AppLauncher before Build, to supply the per-bot icon sprites (by bot id).
+    public void SetIconMap(Dictionary<string, Sprite> iconById)
     {
-        _iconPalette = icons ?? new Sprite[0];
-        if (_iconPalette.Length > 0) _selectedIcon = _iconPalette[0];
+        _iconById = iconById ?? new Dictionary<string, Sprite>();
+    }
+
+    private Sprite IconFor(string id)
+    {
+        return (_iconById != null && _iconById.TryGetValue(id, out var s)) ? s : null;
     }
 
     public void Build(RectTransform content)
@@ -77,11 +91,7 @@ public class CreatorWindow
         MakeLabel(page, "Train a new AI assistant", 22, FontStyles.Bold, 32);
 
         MakeLabel(page, "Which role should it learn?", 16, FontStyles.Normal, 24);
-        _dropdown = MakeDropdown(page, new List<string>(TemplateIds));
-        _dropdown.onValueChanged.AddListener(_ => RefreshInfo());
-
-        MakeLabel(page, "Pick an icon:", 16, FontStyles.Normal, 24);
-        BuildIconPalette(page);
+        BuildRoleButtons(page);
 
         MakeLabel(page, "About them:", 16, FontStyles.Normal, 24);
         _infoText = BuildScrollableInfo(page);   // read-only, scrollable
@@ -92,53 +102,69 @@ public class CreatorWindow
         return page;
     }
 
-    private void BuildIconPalette(RectTransform parent)
+    // Three role buttons (name + job title, with the bot's icon). Selecting one updates the info.
+    private void BuildRoleButtons(RectTransform parent)
     {
-        var rowGo = new GameObject("IconRow", typeof(RectTransform));
-        var rowRt = rowGo.GetComponent<RectTransform>();
-        rowRt.SetParent(parent, false);
-        AddLayoutHeight(rowGo, 52f);
-        var hlg = rowGo.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 6f; hlg.childControlWidth = true; hlg.childControlHeight = true;
-        hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = false;
-        hlg.childAlignment = TextAnchor.MiddleLeft;
-
-        _iconButtons.Clear();
-
-        if (_iconPalette.Length == 0)
+        _roleButtons.Clear();
+        foreach (var id in TemplateIds)
         {
-            MakeLabel(rowRt, "(no icons assigned yet)", 11, FontStyles.Italic, 20);
-            return;
-        }
+            var rowGo = new GameObject($"Role_{id}", typeof(RectTransform), typeof(Image), typeof(Button));
+            rowGo.GetComponent<RectTransform>().SetParent(parent, false);
+            var bgImg = rowGo.GetComponent<Image>();
+            bgImg.color = new Color(0.97f, 0.97f, 0.99f);
+            AddLayoutHeight(rowGo, 48f);
+            var hlg = rowGo.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 8f; hlg.padding = new RectOffset(6, 6, 4, 4);
+            hlg.childControlWidth = true; hlg.childControlHeight = true;
+            hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = true;
+            hlg.childAlignment = TextAnchor.MiddleLeft;
 
-        for (int i = 0; i < _iconPalette.Length; i++)
-        {
-            Sprite sprite = _iconPalette[i];
-            var btnGo = new GameObject($"Icon{i}", typeof(RectTransform), typeof(Image), typeof(Button));
-            btnGo.GetComponent<RectTransform>().SetParent(rowRt, false);
-            var le = btnGo.AddComponent<LayoutElement>();
-            le.preferredWidth = 44; le.preferredHeight = 44; le.minWidth = 44; le.minHeight = 44;
-            var img = btnGo.GetComponent<Image>();
-            img.sprite = sprite;
-            img.preserveAspect = true;
-            _iconButtons.Add(img);
+            // icon
+            var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            iconGo.GetComponent<RectTransform>().SetParent(rowGo.transform, false);
+            var iconImg = iconGo.GetComponent<Image>();
+            var sprite = IconFor(id);
+            if (sprite != null) { iconImg.sprite = sprite; iconImg.preserveAspect = true; }
+            else iconImg.color = new Color(0.7f, 0.7f, 0.75f);
+            var iconLe = iconGo.AddComponent<LayoutElement>();
+            iconLe.preferredWidth = 40; iconLe.minWidth = 40; iconLe.preferredHeight = 40;
 
-            Sprite captured = sprite;
-            btnGo.GetComponent<Button>().onClick.AddListener(() => SelectIcon(captured));
+            // label
+            var lblGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+            lblGo.GetComponent<RectTransform>().SetParent(rowGo.transform, false);
+            var lbl = lblGo.GetComponent<TextMeshProUGUI>();
+            lbl.text = RoleTitles.TryGetValue(id, out var title) ? title : id;
+            lbl.fontSize = 17f; lbl.color = Color.black; lbl.alignment = TextAlignmentOptions.Left;
+            var lblLe = lblGo.AddComponent<LayoutElement>();
+            lblLe.flexibleWidth = 1f;
+
+            string captured = id;
+            bool alreadyMade = ChatRegistry.FindByBotId(id) != null;
+            var button = rowGo.GetComponent<Button>();
+            if (alreadyMade)
+            {
+                bgImg.color = new Color(0.8f, 0.8f, 0.8f, 0.5f);   // greyed
+                lbl.text += "  (created)";
+                lbl.color = new Color(0.5f, 0.5f, 0.5f);
+                button.interactable = false;
+            }
+            else
+            {
+                button.onClick.AddListener(() => SelectRole(captured));
+            }
+            _roleButtons.Add((id, bgImg));
         }
-        HighlightSelectedIcon();
+        // Select the first role that isn't already made.
+        string firstFree = System.Array.Find(TemplateIds, t => ChatRegistry.FindByBotId(t) == null);
+        if (firstFree != null) SelectRole(firstFree);
     }
 
-    private void SelectIcon(Sprite sprite)
+    private void SelectRole(string id)
     {
-        _selectedIcon = sprite;
-        HighlightSelectedIcon();
-    }
-
-    private void HighlightSelectedIcon()
-    {
-        foreach (var img in _iconButtons)
-            img.color = (img.sprite == _selectedIcon) ? Color.white : new Color(0.6f, 0.6f, 0.6f, 1f);
+        _selectedId = id;
+        foreach (var (rid, bg) in _roleButtons)
+            bg.color = (rid == id) ? new Color(0.8f, 0.88f, 1f) : new Color(0.97f, 0.97f, 0.99f);
+        RefreshInfo();
     }
 
     private TMP_Text BuildScrollableInfo(RectTransform parent)
@@ -157,7 +183,7 @@ public class CreatorWindow
         var viewportRt = viewportGo.GetComponent<RectTransform>();
         viewportRt.SetParent(scrollGo.transform, false);
         viewportRt.anchorMin = Vector2.zero; viewportRt.anchorMax = Vector2.one;
-        viewportRt.offsetMin = Vector2.zero; viewportRt.offsetMax = Vector2.zero;
+        viewportRt.offsetMin = new Vector2(2, 0); viewportRt.offsetMax = new Vector2(-2, 0);
         viewportRt.pivot = new Vector2(0, 1);
         viewportGo.GetComponent<Image>().color = new Color(1, 1, 1, 0.01f);
         scroll.viewport = viewportRt;
@@ -167,10 +193,12 @@ public class CreatorWindow
         contentRt.SetParent(viewportRt, false);
         contentRt.anchorMin = new Vector2(0, 1); contentRt.anchorMax = new Vector2(1, 1);
         contentRt.pivot = new Vector2(0.5f, 1);
+        contentRt.anchoredPosition = Vector2.zero;                       // pin (avoids left-drift clipping)
+        contentRt.sizeDelta = new Vector2(0, contentRt.sizeDelta.y);
         var cvlg = contentGo.AddComponent<VerticalLayoutGroup>();
         cvlg.childControlWidth = true; cvlg.childControlHeight = true;
         cvlg.childForceExpandWidth = true; cvlg.childForceExpandHeight = false;
-        cvlg.padding = new RectOffset(8, 8, 8, 8);
+        cvlg.padding = new RectOffset(12, 10, 8, 8);
         var fitter = contentGo.AddComponent<ContentSizeFitter>();
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         scroll.content = contentRt;
@@ -186,7 +214,7 @@ public class CreatorWindow
     private void RefreshInfo()
     {
         if (_infoText == null) return;
-        string id = TemplateIds[Mathf.Clamp(_dropdown.value, 0, TemplateIds.Length - 1)];
+        string id = _selectedId;
         CharacterSheet s = CharacterLoader.Load(id);
         if (s == null) { _infoText.text = $"(could not load '{id}')"; return; }
 
@@ -235,7 +263,12 @@ public class CreatorWindow
 
     private void OnCreateClicked()
     {
-        string id = TemplateIds[Mathf.Clamp(_dropdown.value, 0, TemplateIds.Length - 1)];
+        string id = _selectedId;
+        if (ChatRegistry.FindByBotId(id) != null)
+        {
+            Debug.LogWarning($"[Creator] {id} already exists — not creating a duplicate.");
+            return;
+        }
         CharacterSheet sheet = CharacterLoader.Load(id);
         if (sheet == null) { Debug.LogError($"[Creator] template '{id}' failed to load"); return; }
 
@@ -251,7 +284,7 @@ public class CreatorWindow
             Confidence    = (int)_sliders["confidence"].value,
         };
 
-        OnCreate?.Invoke(sheet, emotion, _selectedIcon);
+        OnCreate?.Invoke(sheet, emotion, IconFor(_selectedId));
     }
 
     // ---- small UI builders --------------------------------------------------
@@ -285,63 +318,6 @@ public class CreatorWindow
         t.alignment = TextAlignmentOptions.Left;
         AddLayoutHeight(go, height);
         return t;
-    }
-
-    private static TMP_Dropdown MakeDropdown(RectTransform parent, List<string> options)
-    {
-        var go = new GameObject("Dropdown", typeof(RectTransform), typeof(Image), typeof(TMP_Dropdown));
-        go.GetComponent<RectTransform>().SetParent(parent, false);
-        go.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
-        AddLayoutHeight(go, 30f);
-        var dd = go.GetComponent<TMP_Dropdown>();
-
-        var labelGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
-        var labelRt = labelGo.GetComponent<RectTransform>();
-        labelRt.SetParent(go.transform, false);
-        labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;
-        labelRt.offsetMin = new Vector2(10, 0); labelRt.offsetMax = new Vector2(-25, 0);
-        var label = labelGo.GetComponent<TextMeshProUGUI>();
-        label.color = Color.black; label.fontSize = 17f; label.alignment = TextAlignmentOptions.Left;
-        dd.captionText = label;
-
-        var templateGo = new GameObject("Template", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(Canvas), typeof(GraphicRaycaster));
-        var templateRt = templateGo.GetComponent<RectTransform>();
-        templateRt.SetParent(go.transform, false);
-        templateRt.anchorMin = new Vector2(0, 0); templateRt.anchorMax = new Vector2(1, 0);
-        templateRt.pivot = new Vector2(0.5f, 1f);
-        templateRt.anchoredPosition = new Vector2(0, 2);
-        templateRt.sizeDelta = new Vector2(0, 120);
-        templateGo.GetComponent<Image>().color = new Color(0.98f, 0.98f, 0.98f, 1f);
-        templateGo.SetActive(false);
-
-        var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
-        var viewportRt = viewportGo.GetComponent<RectTransform>();
-        viewportRt.SetParent(templateRt, false);
-        viewportRt.anchorMin = Vector2.zero; viewportRt.anchorMax = Vector2.one;
-        viewportRt.offsetMin = Vector2.zero; viewportRt.offsetMax = Vector2.zero;
-        viewportGo.GetComponent<Mask>().showMaskGraphic = false;
-
-        var itemGo = new GameObject("Item", typeof(RectTransform), typeof(Toggle));
-        var itemRt = itemGo.GetComponent<RectTransform>();
-        itemRt.SetParent(viewportRt, false);
-        itemRt.anchorMin = new Vector2(0, 0.5f); itemRt.anchorMax = new Vector2(1, 0.5f);
-        itemRt.sizeDelta = new Vector2(0, 24);
-
-        var itemLabelGo = new GameObject("Item Label", typeof(RectTransform), typeof(TextMeshProUGUI));
-        var itemLabelRt = itemLabelGo.GetComponent<RectTransform>();
-        itemLabelRt.SetParent(itemRt, false);
-        itemLabelRt.anchorMin = Vector2.zero; itemLabelRt.anchorMax = Vector2.one;
-        itemLabelRt.offsetMin = new Vector2(10, 0); itemLabelRt.offsetMax = new Vector2(-10, 0);
-        var itemLabel = itemLabelGo.GetComponent<TextMeshProUGUI>();
-        itemLabel.color = Color.black; itemLabel.fontSize = 17f;
-        itemLabel.alignment = TextAlignmentOptions.Left;
-
-        dd.template = templateRt;
-        dd.itemText = itemLabel;
-        dd.options = new List<TMP_Dropdown.OptionData>();
-        foreach (var o in options) dd.options.Add(new TMP_Dropdown.OptionData(o));
-        dd.value = 0; dd.RefreshShownValue();
-        return dd;
     }
 
     private static Slider MakeSliderRow(RectTransform parent, string leftLabel, string rightLabel)
