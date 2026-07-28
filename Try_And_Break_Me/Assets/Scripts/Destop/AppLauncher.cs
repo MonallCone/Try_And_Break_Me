@@ -37,7 +37,12 @@ public class AppLauncher : MonoBehaviour
         var win = windowManager.OpenWindow("AI Virtual Friend — Create", creatorSize);
 
         var creator = new CreatorWindow();
-        creator.SetIcons(characterIcons);
+        creator.SetIconMap(new System.Collections.Generic.Dictionary<string, Sprite>
+        {
+            { "lauren", laurenIcon },
+            { "stuart", stuartIcon },
+            { "alex",   alexIcon },
+        });
         creator.Build(win.ContentArea);
         creator.OnCreate += (sheet, emotion, icon) =>
         {

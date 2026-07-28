@@ -727,7 +727,6 @@ GameObject:
   m_Component:
   - component: {fileID: 394914016}
   - component: {fileID: 394914018}
-  - component: {fileID: 394914017}
   - component: {fileID: 394914019}
   m_Layer: 5
   m_Name: Taskbar
@@ -757,36 +756,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 110.9741}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &394914017
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 394914015}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &394914018
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1901,22 +1870,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AppLauncher
   windowManager: {fileID: 1555154912}
-  characterIcons:
-  - {fileID: 1333401826788945531, guid: 0df756e6cddd2264998b0f39c7e712af, type: 3}
-  - {fileID: -2633475138060129539, guid: a4b530ae7b23d044f92a3cc4a1bc0b37, type: 3}
-  - {fileID: -2024208950481390408, guid: e5167a2cda5458545a951add251ded90, type: 3}
-  - {fileID: 7806903185615573512, guid: 1e5675b358e79ca44a7533066243803f, type: 3}
-  - {fileID: -2990309890484215505, guid: feec2b24bf6caa64e8af91f1851df490, type: 3}
-  - {fileID: 5568792337342796667, guid: 87614b6e29c558e498cbcfd069fe8bb3, type: 3}
-  - {fileID: 4495478712733764576, guid: 390e473fc1c411a498d4b108304416bd, type: 3}
-  - {fileID: 5916281833206745938, guid: d69a6207d431c55429145acb45b819ff, type: 3}
-  - {fileID: 2971437277481271412, guid: eaa40c40b5e00c244b8eba1fe1f4f095, type: 3}
-  - {fileID: -3385415037828575978, guid: 1fd76d517b522454d986f435c4733994, type: 3}
-  - {fileID: -5362292703166988329, guid: d0c36ae0bfabc2748a82ceadd926b025, type: 3}
-  - {fileID: 5014184027176130527, guid: 0562b78dcc8710e42b31650c215db81f, type: 3}
-  - {fileID: -5687666349546342197, guid: 4df2f5950a2378e499e2a82e9975cb13, type: 3}
-  - {fileID: 3944610533857416082, guid: 5e57b05a11b228b449165677e68b034b, type: 3}
-  - {fileID: 3422849895820167655, guid: 4664357e01560a944a649ede49edb762, type: 3}
+  laurenIcon: {fileID: -5402225047165893690, guid: 21ac9a62f4ee18e4cbcad598eed91fd3, type: 3}
+  stuartIcon: {fileID: -9151102331828275891, guid: c5df43e319413eb41b62552ba2938c9f, type: 3}
+  alexIcon: {fileID: -222218625211863217, guid: 59b9cf6be85e87c4daf8908f0675305b, type: 3}
+  emailIcon: {fileID: 754352307031186287, guid: 714d5d2c91b355649963a895f9893a25, type: 3}
+  companyChatIcon: {fileID: -3643435801253766351, guid: 1cdba5eee08faa44abe1f6df1d00da35, type: 3}
+  tasksIcon: {fileID: -1114059031969540129, guid: f86c03ed0e23808429f829bd84a0b0cc, type: 3}
   creatorSize: {x: 460, y: 560}
   chatSize: {x: 420, y: 560}
   baseUrl: http://localhost:8000
@@ -2606,7 +2565,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1465409131}
   - component: {fileID: 1465409133}
-  - component: {fileID: 1465409132}
+  - component: {fileID: 1465409134}
+  - component: {fileID: 1465409135}
   m_Layer: 5
   m_Name: Wallpaper
   m_TagString: Untagged
@@ -2630,39 +2590,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.0024109, y: 63.27}
+  m_SizeDelta: {x: -0.005127, y: -126.5359}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1465409132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1465409130}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1465409133
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2671,6 +2601,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1465409130}
   m_CullTransparentMesh: 1
+--- !u!328 &1465409134
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1465409130}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 32900000, guid: e239ad80a7eeaf74ab8d15e628bf3cf7, type: 3}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera3DLayout: 0
+  m_TargetCamera: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: 775a1c518eefb1f4abcac6a80fa795a8, type: 2}
+  m_TimeReference: 0
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: <noninit>
+  m_RenderMode: 2
+  m_AspectRatio: 0
+  m_DataSource: 0
+  m_TimeUpdateMode: 2
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 0
+  m_TargetAudioSources: []
+  m_DirectAudioVolumes: []
+  m_Url: 
+  m_EnabledAudioTracks: 
+  m_DirectAudioMutes: 
+  m_ControlledAudioTrackCount: 0
+  m_PlayOnAwake: 1
+  m_SkipOnDrop: 1
+  m_Looping: 1
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
+  m_VideoShaders: []
+--- !u!114 &1465409135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1465409130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 8400000, guid: 775a1c518eefb1f4abcac6a80fa795a8, type: 2}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &1555154911
 GameObject:
   m_ObjectHideFlags: 0
@@ -3105,7 +3096,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -12.717, y: 0}
+  m_AnchoredPosition: {x: -12.717, y: -14}
   m_SizeDelta: {x: 174.5663, y: 155.6711}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1857822786

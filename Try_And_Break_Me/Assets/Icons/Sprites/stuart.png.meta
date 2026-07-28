@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: e5167a2cda5458545a951add251ded90
+guid: c5df43e319413eb41b62552ba2938c9f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2024208950481390408
-    second: dancer_0
-  - first:
-      213: 3978056369885555734
-    second: dancer_1
+      213: -9151102331828275891
+    second: stuart_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -103,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dancer_0
+      name: stuart_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 4
-        width: 49
-        height: 56
+        x: 3
+        y: 0
+        width: 34
+        height: 40
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -118,30 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8b4f36b2fa098e3e0800000000000000
-      internalID: -2024208950481390408
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: dancer_1
-      rect:
-        serializedVersion: 2
-        x: 46
-        y: 40
-        width: 12
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 61c22871135e43730800000000000000
-      internalID: 3978056369885555734
+      spriteID: d457020f9e0c00180800000000000000
+      internalID: -9151102331828275891
       vertices: []
       indices: 
       edges: []
@@ -160,8 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dancer_0: -2024208950481390408
-      dancer_1: 3978056369885555734
+      stuart_0: -9151102331828275891
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
