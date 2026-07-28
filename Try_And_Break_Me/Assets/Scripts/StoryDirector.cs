@@ -48,6 +48,7 @@ public class StoryDirector : MonoBehaviour
 
         // A welcome email is already there at login (feels like a normal work inbox).
         Mailbox.Deliver("welcome");
+        Mailbox.Deliver("Sorry");
 
         // Beat 3: the CEO's all-staff initiative email arrives a few seconds later.
         StartCoroutine(Beat3_CeoEmail());

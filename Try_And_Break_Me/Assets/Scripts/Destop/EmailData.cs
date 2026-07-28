@@ -33,9 +33,13 @@ public static class EmailCatalog
         {
             case "welcome":
                 return new EmailData("welcome", "IT Onboarding",
-                    "Welcome to AI International Inc",
+                    "Welcome to CyberX the leading Company in cyber secruity",
                     $"Hi {playerName},\n\nYour workstation is ready. Please check your inbox regularly \u2014 " +
                     "task assignments and company announcements arrive here.\n\nHave a productive first day!\n\n\u2014 IT");
+
+            case "Sorry":
+                return new EmailData("Sorry", "Cass", "Leaving CyberX", $"Sorry {playerName}, \n\n I know me leaving means you have to manage our whole teams workload on your own \u2014 " + 
+                "But i just can't to continue to work for a comapny that continuelly critizes and berate their employees \n\n I'm not angry you didn't leave with me just dissappoointed, you can do so much more but being here is slowly killing you as it was me its why i had to go. \n\n Wishing You the Best Always \n Cass");
 
             case "ceo_initiative":
                 return new EmailData("ceo_initiative", "Steven (CEO)",
@@ -44,9 +48,6 @@ public static class EmailCatalog
                     "an AI assistant to support \u2014 and eventually take over \u2014 your day-to-day tasks. This is a huge " +
                     "step forward for the company and for all of us.\n\nYour training software will install automatically. " +
                     "Please build your first assistant today.\n\nOnwards and upwards,\nSteven");
-
-            // More story emails get added here as we reach their beats (holiday trap, create-another-bot,
-            // tone-shift emails, DELETE THE BOTS, etc.).
 
             default:
                 return new EmailData(id, "Unknown", "(missing email)", $"[No email authored for id '{id}']");

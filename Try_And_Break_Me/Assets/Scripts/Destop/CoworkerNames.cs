@@ -8,7 +8,7 @@ public static class CoworkerNames
     public static readonly List<string> All = new List<string>
     {
         "Dave", "Priya", "Marcus", "Chloe", "Tomasz", "Nadia",
-        "Greg", "Aisha", "Liam", "Fenwick", "Sam", "Rhona"
+        "Greg", "Aisha", "Liam", "Fenwick", "Sam", "Rhona", "Pete", "Mark", "Samuel", "Rick", "Grace", "Rebecca",
     };
 
     private static readonly System.Random _rng = new System.Random();

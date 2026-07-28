@@ -29,8 +29,8 @@ public class CompanyChatApp : MonoBehaviour
     }
 
     [Header("Ambient timing")]
-    public float minInterval = 1.2f;
-    public float maxInterval = 3.0f;
+    public float minInterval = 0.5f;
+    public float maxInterval = 1.0f;
 
     private readonly List<Channel> _channels = new List<Channel>();
     private Channel _active;
@@ -143,7 +143,7 @@ public class CompanyChatApp : MonoBehaviour
     private void SeedTeamGhosts(Channel team)
     {
         // People were here once. Now it's just you.
-        string[] leavers = { "Marcus", "Priya", "Rhona", "Liam", "Nadia" };
+        string[] leavers = { "Marcus", "Priya", "Rhona", "Liam", "Nadia", "Cass"};
         foreach (var name in leavers)
             AddLineTo(team, $"<i><color=#888888>{name} left the channel</color></i>");
         AddLineTo(team, "<i><color=#888888>You are the only member of this channel.</color></i>");

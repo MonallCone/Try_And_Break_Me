@@ -41,6 +41,7 @@ public static class CompanyChatContent
         "hehe pee pee poo poo",
         "haha another ticket to remind steven of his password, this guy is a moron",
         "loooooooooooooooooooooooooooooool",
+        "Does anyone else keep getting an introduction email every morning, ive been here for 6 months",
     };
 
     // Act-3 CALM (used later). Orderly, mundane, unsettlingly content. One thought per line.
