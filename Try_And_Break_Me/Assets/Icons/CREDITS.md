@@ -36,3 +36,5 @@
 
 <a target="_blank" href="https://icons8.com/icon/hByk2bcP4aZ5/speech-bubble">Message</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 
+<a target="_blank" href="https://icons8.com/icon/cGcRDueIKQkF/task">Task</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+

@@ -90,4 +90,8 @@ public class AppLauncher : MonoBehaviour
         if (GameState.I) GameState.I.RegisterBotCreated();
         if (StoryDirector.I) StoryDirector.I.OnBotCreated(sheet);
     }
+
+    public void OpenTasks(){
+        
+    }
 }
