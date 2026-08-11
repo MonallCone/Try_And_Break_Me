@@ -79,8 +79,111 @@ public class AppLauncher : MonoBehaviour
         app.Build(win.ContentArea);
     }
 
+    [Header("Tasks")]
+    public Vector2 tasksSize = new Vector2(420f, 480f);
+
+    public void OpenTasks()
+    {
+        var win = windowManager.OpenWindow("Tasks", tasksSize, tasksIcon);
+        var app = new TasksApp();
+        app.Build(win.ContentArea, LaunchMinigame);
+    }
+
+    // A small pop-up prompting the player to end the day. Calls onEndDay when clicked.
+    public void ShowEndDayPrompt(System.Action onEndDay)
+    {
+        var win = windowManager.OpenWindow("End of Day", new Vector2(360f, 180f));
+        var root = win.ContentArea;
+        root.gameObject.AddComponent<UnityEngine.UI.Image>().color = new Color(0.93f, 0.93f, 0.96f);
+        var vlg = root.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
+        vlg.padding = new RectOffset(16, 16, 16, 16); vlg.spacing = 12f;
+        vlg.childControlWidth = true; vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
+        vlg.childAlignment = TextAnchor.MiddleCenter;
+
+        var txtGo = new GameObject("T", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        txtGo.GetComponent<RectTransform>().SetParent(root, false);
+        var t = txtGo.GetComponent<TMPro.TextMeshProUGUI>();
+        t.text = "You've done everything for today.\nReady to end the day?";
+        t.fontSize = 16f; t.color = Color.black; t.alignment = TMPro.TextAlignmentOptions.Center;
+        txtGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 60f;
+
+        var btnGo = new GameObject("EndDay", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button));
+        btnGo.GetComponent<RectTransform>().SetParent(root, false);
+        btnGo.GetComponent<UnityEngine.UI.Image>().color = new Color(0.2f, 0.3f, 0.5f);
+        btnGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 44f;
+        var blGo = new GameObject("L", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        var blRt = blGo.GetComponent<RectTransform>();
+        blRt.SetParent(btnGo.transform, false);
+        blRt.anchorMin = Vector2.zero; blRt.anchorMax = Vector2.one; blRt.offsetMin = Vector2.zero; blRt.offsetMax = Vector2.zero;
+        var bl = blGo.GetComponent<TMPro.TextMeshProUGUI>();
+        bl.text = "End the day"; bl.fontSize = 16f; bl.color = Color.white;
+        bl.alignment = TMPro.TextAlignmentOptions.Center;
+
+        btnGo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() =>
+        {
+            windowManager.CloseWindow(win);
+            onEndDay?.Invoke();
+        });
+    }
+
+    // Opens the right minigame window for a task. Unimplemented games use a placeholder that
+    // completes with a random score, so the flow is testable before the real minigames exist.
+    public void LaunchMinigame(WorkTask task)
+    {
+        switch (task.type)
+        {
+            case TaskType.HRSwipe:      HRSwipeGame.Launch(windowManager, task); break;
+            case TaskType.HelpDeskMaze: HelpDeskMazeGame.Launch(windowManager, task); break;
+            case TaskType.CyberShooter: CyberShooterGame.Launch(windowManager, task); break;
+            default:
+                OpenPlaceholderTask(task);
+                break;
+        }
+    }
+
+    private void OpenPlaceholderTask(WorkTask task)
+    {
+        var win = windowManager.OpenWindow(task.title, new Vector2(360f, 200f));
+        var root = win.ContentArea;
+        root.gameObject.AddComponent<UnityEngine.UI.Image>().color = new Color(0.93f, 0.93f, 0.95f);
+        var vlg = root.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
+        vlg.padding = new RectOffset(16, 16, 16, 16); vlg.spacing = 12f;
+        vlg.childControlWidth = true; vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
+        vlg.childAlignment = TextAnchor.MiddleCenter;
+
+        var txtGo = new GameObject("T", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        txtGo.GetComponent<RectTransform>().SetParent(root, false);
+        var t = txtGo.GetComponent<TMPro.TextMeshProUGUI>();
+        t.text = $"[Placeholder for: {task.title}]\nThe real minigame slots in here.";
+        t.fontSize = 14f; t.color = Color.black; t.alignment = TMPro.TextAlignmentOptions.Center;
+        txtGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 60f;
+
+        var btnGo = new GameObject("Complete", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button));
+        btnGo.GetComponent<RectTransform>().SetParent(root, false);
+        btnGo.GetComponent<UnityEngine.UI.Image>().color = new Color(0.25f, 0.45f, 0.3f);
+        btnGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 40f;
+        var blGo = new GameObject("L", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        var blRt = blGo.GetComponent<RectTransform>();
+        blRt.SetParent(btnGo.transform, false);
+        blRt.anchorMin = Vector2.zero; blRt.anchorMax = Vector2.one; blRt.offsetMin = Vector2.zero; blRt.offsetMax = Vector2.zero;
+        var bl = blGo.GetComponent<TMPro.TextMeshProUGUI>();
+        bl.text = "Complete (random score)"; bl.fontSize = 13f; bl.color = Color.white;
+        bl.alignment = TMPro.TextAlignmentOptions.Center;
+
+        btnGo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() =>
+        {
+            WorkDay.CompleteTask(task, Random.Range(30, 101));
+            windowManager.CloseWindow(win);
+        });
+    }
+
     public void OpenChat(CharacterSheet sheet, EmotionProfile emotion, Sprite icon)
     {
+        // Remember this bot's config so the story can reopen its window later (Sanity Event 1).
+        _botConfigs[sheet.Id] = (sheet, emotion, icon);
+
         var win = windowManager.OpenWindow(sheet.Name, chatSize, icon);
 
         // Dock the bot window to the right edge (stacks with other bots; walls the player in).
@@ -109,4 +212,26 @@ public class AppLauncher : MonoBehaviour
         if (GameState.I) GameState.I.RegisterBotCreated();
         if (StoryDirector.I) StoryDirector.I.OnBotCreated(sheet);
     }
+
+    // Remembered bot configs, so the story can force a bot's window back open.
+    private readonly System.Collections.Generic.Dictionary<string, (CharacterSheet sheet, EmotionProfile emotion, Sprite icon)> _botConfigs
+        = new System.Collections.Generic.Dictionary<string, (CharacterSheet, EmotionProfile, Sprite)>();
+
+    // Ensure a given bot's chat window is open (reopen it if the player closed it). Returns the
+    // open ChatController, or null if we have no record of that bot.
+    public ChatController EnsureBotOpen(string botId)
+    {
+        var existing = ChatRegistry.FindByBotId(botId);
+        if (existing != null) return existing;
+        if (_botConfigs.TryGetValue(botId, out var cfg))
+        {
+            OpenChat(cfg.sheet, cfg.emotion, cfg.icon);   // reopens + re-registers
+            return ChatRegistry.FindByBotId(botId);
+        }
+        return null;
+    }
+
+    // The id of the first bot the player created (for Sanity Event 1's spam target).
+    public string FirstBotId { get; private set; }
+    public void NoteFirstBot(string id) { if (string.IsNullOrEmpty(FirstBotId)) FirstBotId = id; }
 }

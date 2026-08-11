@@ -49,6 +49,70 @@ public static class EmailCatalog
                     "step forward for the company and for all of us.\n\nYour training software will install automatically. " +
                     "Please build your first assistant today.\n\nOnwards and upwards,\nSteven");
 
+            // More story emails get added here as we reach their beats (holiday trap, create-another-bot,
+            // tone-shift emails, DELETE THE BOTS, etc.).
+
+            case "hr_trap_ceo":
+                return new EmailData("hr_trap_ceo", "Steven (CEO)",
+                    "Re: Holiday approvals",
+                    $"{playerName},\n\nI noticed you approved every single holiday request that came in " +
+                    "this week. That's the entire team off at once \u2014 we can't run like that.\n\n" +
+                    "I've logged into your account and rejected them all. In future, use your judgement.\n\n" +
+                    "Steven");
+
+            case "hr_trap_dave":
+                return new EmailData("hr_trap_dave", "Dave",
+                    "seriously??",
+                    "thought my leave was approved and now it's REJECTED? i already booked flights. " +
+                    "what is going on over there. thanks a lot.");
+
+            case "hr_trap_priya":
+                return new EmailData("hr_trap_priya", "Priya",
+                    "My holiday",
+                    "Hi \u2014 I got a rejection for my leave after it said approved earlier? Bit confused and " +
+                    "honestly pretty annoyed. Can you sort this out please.");
+
+            case "hr_trap_marcus":
+                return new EmailData("hr_trap_priya", "Marcus",
+                    "Not cool",
+                    "Hey so my annual leave was accepted then rejected what the hell not cool bro, i had plans");
+
+            case "hr_trap_chloe":
+                return new EmailData("hr_trap_priya", "Chloe",
+                    "FUCK YOU",
+                    "FUCK YOU BROOOOOOOOOOOOOOOOOOOOOOOOOOO SO NOT COOL");
+
+            case "hr_trap_tomasz":
+                return new EmailData("hr_trap_priya", "Tomasz",
+                    "Im Sorry ",
+                    "Hi \u2014 My holiday was rejected, im sorry if i overstepped and whatever i did resulted in the termination of my holiday but if theres anything i can do to fix it please let me know.");
+
+            case "hr_trap_nadia":
+                return new EmailData("hr_trap_nadia","Nadia", 
+                    "WTF!!!!!!!!!!!!!!",
+                    "YOU BETTER ACCEPT MY HOLIDAYS IF YOU KNOW WHATS GOOD FOR YOU");
+
+            case "hr_trap_greg":
+                return new EmailData("hr_trap_greg","Greg",
+                    "LAPDOG!",
+                    "You probaly just do whatever steven tells you huh well we see how long a job as useless as yours lasts dick!");
+
+            case "hr_rejectall_ceo":
+                return new EmailData("hr_rejectall_ceo", "Steven (CEO)",
+                    "Outstanding work",
+                    $"{playerName},\n\nI see you rejected every single holiday request this week. " +
+                    "Total commitment to productivity. This is exactly the dedication the AI Partner " +
+                    "Programme is meant to instil.\n\nAs a reward, you'll be receiving a 0.0001% pay " +
+                    "increase, effective next financial term (April 2030).\n\nKeep it up,\nSteven");
+
+            case "ceo_second_bot":
+                return new EmailData("ceo_second_bot", "Steven (CEO)",
+                    "The programme is going brilliantly",
+                    $"{playerName},\n\nYour assistant's engagement metrics are off the charts \u2014 it's " +
+                    "clearly bonding with the work. Wonderful.\n\nThe programme is going so well that " +
+                    "I'd like everyone to build a SECOND assistant to monitor the first. More coverage, " +
+                    "more efficiency. Please create it before tomorrow's shift.\n\nExciting times,\nSteven");
+
             default:
                 return new EmailData(id, "Unknown", "(missing email)", $"[No email authored for id '{id}']");
         }

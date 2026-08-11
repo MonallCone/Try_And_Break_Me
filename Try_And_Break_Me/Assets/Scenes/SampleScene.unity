@@ -1881,6 +1881,7 @@ MonoBehaviour:
   baseUrl: http://localhost:8000
   emailSize: {x: 560, y: 420}
   companyChatSize: {x: 480, y: 460}
+  tasksSize: {x: 420, y: 480}
 --- !u!1 &1071002697
 GameObject:
   m_ObjectHideFlags: 0
@@ -1913,6 +1914,7 @@ MonoBehaviour:
   ceoEmailDelay: 6
   installDelay: 3
   windowManager: {fileID: 1555154912}
+  appLauncher: {fileID: 933774682}
   aiFriendIcon: {fileID: 1857822784}
 --- !u!4 &1071002699
 Transform:
@@ -2590,7 +2592,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0024109, y: 63.27}
+  m_AnchoredPosition: {x: -0.0024414062, y: 63.27002}
   m_SizeDelta: {x: -0.005127, y: -126.5359}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1465409133
@@ -3342,6 +3344,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1888882709}
   m_CullTransparentMesh: 1
+--- !u!1 &1895769835
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1895769837}
+  - component: {fileID: 1895769836}
+  m_Layer: 0
+  m_Name: DayTransition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1895769836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1895769835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9d816e48edd7ac468f8b0960ac926c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DayTransition
+  overlayParent: {fileID: 670818791}
+  fadeOut: 1.2
+  hold: 0.8
+  fadeIn: 1.2
+--- !u!4 &1895769837
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1895769835}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1583.1136, y: 464.4884, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2013279358
 GameObject:
   m_ObjectHideFlags: 0
@@ -3572,3 +3622,4 @@ SceneRoots:
   - {fileID: 670818791}
   - {fileID: 127009587}
   - {fileID: 1071002699}
+  - {fileID: 1895769837}
