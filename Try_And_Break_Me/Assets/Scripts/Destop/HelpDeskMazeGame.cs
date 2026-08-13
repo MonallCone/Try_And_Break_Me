@@ -85,8 +85,60 @@ public class HelpDeskMazeGame : MonoBehaviour
         BuildCells(cell);
         BuildControls(root);
 
+        // Bot help (hard-coded to specific Day 2 tasks): highlight the correct path and say
+        // something quietly unsettling. Played straight \u2014 the help itself is genuinely useful.
+        if (_task != null && _task.helped)
+            ApplyMazeHelp();
+
         RefreshPlayer();
         UpdateHud();
+    }
+
+    private void ApplyMazeHelp()
+    {
+        // Tint the shortest-path cells so the route is obvious.
+        var path = ShortestPathCells(_start, _goal);
+        foreach (var cell in path)
+        {
+            if (cell == _start || cell == _goal) continue;
+            var img = _cells[cell.x, cell.y];
+            if (img != null) img.color = new Color(0.55f, 0.8f, 0.95f);   // gentle blue trail
+        }
+        _hud.text = "Alex highlighted the path for you.";
+
+        var chat = ChatRegistry.FindByBotId("alex");
+        chat?.InjectBotLine("I already know the way. I know all the ways now. Just follow the blue.", ominous: true);
+    }
+
+    // BFS that returns the actual list of cells on a shortest path (not just its length).
+    private System.Collections.Generic.List<Vector2Int> ShortestPathCells(Vector2Int from, Vector2Int to)
+    {
+        var prev = new System.Collections.Generic.Dictionary<Vector2Int, Vector2Int>();
+        var seen = new System.Collections.Generic.HashSet<Vector2Int> { from };
+        var q = new System.Collections.Generic.Queue<Vector2Int>();
+        q.Enqueue(from);
+        int[,] dirs = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+        bool found = false;
+        while (q.Count > 0 && !found)
+        {
+            var cur = q.Dequeue();
+            for (int d = 0; d < 4; d++)
+            {
+                int nr = cur.x + dirs[d, 0], nc = cur.y + dirs[d, 1];
+                if (nr < 0 || nr >= _rows || nc < 0 || nc >= _cols) continue;
+                if (_wall[nr, nc]) continue;
+                var next = new Vector2Int(nr, nc);
+                if (seen.Contains(next)) continue;
+                seen.Add(next); prev[next] = cur; q.Enqueue(next);
+                if (next == to) { found = true; break; }
+            }
+        }
+        var path = new System.Collections.Generic.List<Vector2Int>();
+        if (!found && from != to) return path;
+        var node = to;
+        path.Add(node);
+        while (node != from && prev.ContainsKey(node)) { node = prev[node]; path.Add(node); }
+        return path;
     }
 
     private void ParseMaze()

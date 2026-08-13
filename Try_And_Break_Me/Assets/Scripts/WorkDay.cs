@@ -16,6 +16,7 @@ public class WorkTask
     public string botId;              // which bot comments on this task (lauren/stuart/alex)
     public TaskStatus status = TaskStatus.ToDo;
     public int score = -1;            // -1 until completed
+    public bool helped = false;       // if true, the matching bot assists during the minigame
 
     public WorkTask(string id, string title, TaskType type, string botId)
     {

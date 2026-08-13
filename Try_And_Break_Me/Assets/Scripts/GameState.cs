@@ -41,6 +41,7 @@ public class GameState : MonoBehaviour
     // ---- flags ----
     public void SetFlag(string flag) { _flags.Add(flag); }
     public bool HasFlag(string flag) => _flags.Contains(flag);
+    public void ClearFlag(string flag) { _flags.Remove(flag); }
 
     // ---- convenience ----
     public void NextDay() { day++; Debug.Log($"[GameState] now day {day}"); }

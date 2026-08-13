@@ -21,7 +21,7 @@ public class AppLauncher : MonoBehaviour
 
     [Header("Window sizes")]
     public Vector2 creatorSize = new Vector2(460f, 620f);
-    public Vector2 chatSize = new Vector2(420f, 560f);
+    public Vector2 chatSize = new Vector2(500f, 560f);
 
     [Header("Relay")]
     public string baseUrl = "http://localhost:8000";
@@ -131,6 +131,13 @@ public class AppLauncher : MonoBehaviour
     // completes with a random score, so the flow is testable before the real minigames exist.
     public void LaunchMinigame(WorkTask task)
     {
+        // Tasks can be locked by the story (e.g. Day 2 mid-day: must build the 3rd bot first).
+        if (GameState.I != null && GameState.I.HasFlag("tasks_locked"))
+        {
+            ShowBlockedMessage();
+            return;
+        }
+
         switch (task.type)
         {
             case TaskType.HRSwipe:      HRSwipeGame.Launch(windowManager, task); break;
@@ -140,6 +147,46 @@ public class AppLauncher : MonoBehaviour
                 OpenPlaceholderTask(task);
                 break;
         }
+    }
+
+    // A fake "Blocked by Administrator" system message shown when tasks are locked.
+    public void ShowBlockedMessage()
+    {
+        var win = windowManager.OpenWindow("System", new Vector2(380f, 200f));
+        var root = win.ContentArea;
+        root.gameObject.AddComponent<UnityEngine.UI.Image>().color = new Color(0.95f, 0.95f, 0.97f);
+        var vlg = root.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
+        vlg.padding = new RectOffset(16, 16, 16, 16); vlg.spacing = 10f;
+        vlg.childControlWidth = true; vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
+        vlg.childAlignment = TextAnchor.UpperCenter;
+
+        var titleGo = new GameObject("Title", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        titleGo.GetComponent<RectTransform>().SetParent(root, false);
+        var tt = titleGo.GetComponent<TMPro.TextMeshProUGUI>();
+        tt.text = "\u26D4 Blocked by Administrator"; tt.fontSize = 16f; tt.fontStyle = TMPro.FontStyles.Bold;
+        tt.color = new Color(0.7f, 0.15f, 0.15f); tt.alignment = TMPro.TextAlignmentOptions.Center;
+        titleGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 26f;
+
+        var bodyGo = new GameObject("Body", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        bodyGo.GetComponent<RectTransform>().SetParent(root, false);
+        var bt = bodyGo.GetComponent<TMPro.TextMeshProUGUI>();
+        bt.text = "User Message:\n\"For maximum training, please install your third bot before continuing your work.\"\n\u2014 CEO Steven";
+        bt.fontSize = 14f; bt.color = Color.black; bt.alignment = TMPro.TextAlignmentOptions.Center;
+        bt.textWrappingMode = TMPro.TextWrappingModes.Normal;
+        bodyGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 90f;
+
+        var btnGo = new GameObject("OK", typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button));
+        btnGo.GetComponent<RectTransform>().SetParent(root, false);
+        btnGo.GetComponent<UnityEngine.UI.Image>().color = new Color(0.4f, 0.4f, 0.45f);
+        btnGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 34f;
+        var blGo = new GameObject("L", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        var blRt = blGo.GetComponent<RectTransform>();
+        blRt.SetParent(btnGo.transform, false);
+        blRt.anchorMin = Vector2.zero; blRt.anchorMax = Vector2.one; blRt.offsetMin = Vector2.zero; blRt.offsetMax = Vector2.zero;
+        var bl = blGo.GetComponent<TMPro.TextMeshProUGUI>();
+        bl.text = "OK"; bl.fontSize = 14f; bl.color = Color.white; bl.alignment = TMPro.TextAlignmentOptions.Center;
+        btnGo.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => windowManager.CloseWindow(win));
     }
 
     private void OpenPlaceholderTask(WorkTask task)

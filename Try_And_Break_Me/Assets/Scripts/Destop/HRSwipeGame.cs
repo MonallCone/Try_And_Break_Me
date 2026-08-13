@@ -25,6 +25,14 @@ public class HRSwipeGame
 
     public static void Launch(WindowManager manager, WorkTask task)
     {
+        // Clear per-play outcome flags so this play's result is fresh (the once-per-run email
+        // guards, hr_trap_fired / hr_rejectall_fired, are what prevent repeat emails).
+        if (GameState.I != null)
+        {
+            GameState.I.ClearFlag("hr_approved_all");
+            GameState.I.ClearFlag("hr_rejected_all");
+        }
+
         var win = manager.OpenWindow("HR — Holiday Requests", new Vector2(420f, 440f));
         var game = new HRSwipeGame { _manager = manager, _task = task, _window = win };
         game._requests = HolidayRequests.Build(6);
@@ -73,6 +81,12 @@ public class HRSwipeGame
         MakeButton(rowGo.GetComponent<RectTransform>(), "Reject", new Color(0.75f, 0.28f, 0.28f), () => Decide(false));
         MakeButton(rowGo.GetComponent<RectTransform>(), "Approve", new Color(0.28f, 0.6f, 0.35f), () => Decide(true));
 
+        if (_task != null && _task.helped)
+        {
+            var chat = ChatRegistry.FindByBotId("lauren");
+            chat?.InjectBotLine("I've read all their files. I'll tell you who deserves it. I know them better than they know themselves.", ominous: true);
+        }
+
         ShowCurrent();
     }
 
@@ -83,6 +97,14 @@ public class HRSwipeGame
         _progress.text = $"Request {_index + 1} of {_requests.Count}";
         _name.text = r.name;
         _details.text = $"<b>{r.days} day{(r.days == 1 ? "" : "s")}</b>   ({r.dates})\n\n\"{r.reason}\"";
+
+        // Bot help (hard-coded): Lauren pre-advises a decision on each ticket.
+        if (_task != null && _task.helped)
+        {
+            string advice = r.days <= 5 ? "<color=#2a8a3a>Lauren suggests: Approve</color>"
+                                        : "<color=#a83232>Lauren suggests: Reject</color>";
+            _details.text += $"\n\n{advice}";
+        }
     }
 
     private void Decide(bool approve)

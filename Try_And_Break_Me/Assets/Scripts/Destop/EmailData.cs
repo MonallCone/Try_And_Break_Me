@@ -113,6 +113,14 @@ public static class EmailCatalog
                     "I'd like everyone to build a SECOND assistant to monitor the first. More coverage, " +
                     "more efficiency. Please create it before tomorrow's shift.\n\nExciting times,\nSteven");
 
+            case "ceo_third_bot":
+                return new EmailData("ceo_third_bot", "Steven (CEO)",
+                    "One more \u2014 you're doing so well",
+                    $"{playerName},\n\nRemarkable progress. The assistants are practically running the " +
+                    "department themselves now.\n\nLet's complete the set: please build a THIRD assistant " +
+                    "to oversee the other two. Full coverage. I really think we're onto something " +
+                    "special here.\n\nProudly,\nSteven");
+
             default:
                 return new EmailData(id, "Unknown", "(missing email)", $"[No email authored for id '{id}']");
         }

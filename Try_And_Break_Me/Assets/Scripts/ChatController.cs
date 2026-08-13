@@ -46,6 +46,11 @@ public class ChatController
     public string BotName => _sheet != null ? _sheet.Name : "";
     public SanityModel Sanity => _sanity;
 
+    // When the player last sent THIS bot a message (Time.time). Used by Sanity Event 2 to detect
+    // being ignored. Initialised to creation time so a freshly made bot isn't instantly "ignored".
+    public float LastPlayerMessageTime = -999f;
+    public void MarkInteractionNow() { LastPlayerMessageTime = Time.time; }
+
     // Inject a SCRIPTED bot line that bypasses the LLM entirely. This is the horror mechanic:
     // a Sanity Event calls this to make the bot "say" something authored, with no API call.
     // Optionally style it (reddish) to mark it as a degradation moment.
@@ -77,6 +82,7 @@ public class ChatController
         BuildInputRow(root);     // fixed
 
         ChatRegistry.Register(this);   // so Sanity Events can find this chat
+        MarkInteractionNow();          // start the ignore timer fresh
 
         // Unregister automatically when the window (this content) is destroyed.
         var relay = root.gameObject.AddComponent<DestroyRelay>();
@@ -110,7 +116,7 @@ public class ChatController
         panelRt.SetParent(parent, false);
         panelGo.GetComponent<Image>().color = new Color(0.82f, 0.82f, 0.85f, 1f);
         var le = panelGo.AddComponent<LayoutElement>();
-        le.preferredWidth = 120f; le.minWidth = 120f;   // fixed width
+        le.preferredWidth = 25f; le.minWidth = 25f;   // slim fixed width \u2014 transcript gets the rest
         var vlg = panelGo.AddComponent<VerticalLayoutGroup>();
         vlg.padding = new RectOffset(8, 8, 8, 8);
         vlg.spacing = 6f;
@@ -133,7 +139,7 @@ public class ChatController
         nameGo.GetComponent<RectTransform>().SetParent(panelRt, false);
         var nameT = nameGo.GetComponent<TextMeshProUGUI>();
         nameT.text = _sheet.Name;
-        nameT.fontSize = 19f; nameT.fontStyle = FontStyles.Bold;
+        nameT.fontSize = 16f; nameT.fontStyle = FontStyles.Bold;
         nameT.color = Color.black;
         nameT.alignment = TextAlignmentOptions.Center;
         nameT.textWrappingMode = TextWrappingModes.Normal;
@@ -274,6 +280,8 @@ public class ChatController
     {
         string userText = _input.text.Trim();
         if (string.IsNullOrEmpty(userText)) return;
+
+        MarkInteractionNow();   // talking to the bot resets its ignore timer (Sanity Event 2)
 
         _input.text = "";
         SetBusy(true);

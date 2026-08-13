@@ -99,8 +99,50 @@ public class CyberShooterGame : MonoBehaviour
         HandleSpawns();
         MoveThreats();
         HandleClicks();
+        HandleBotHelp();
         CheckEnd();
         UpdateHud();
+    }
+
+    // Bot help (hard-coded to specific Day 2 tasks): Stuart periodically destroys a threat for you,
+    // as if he's picking some off himself. Played straight; the intro line carries the unease.
+    private float _helpTimer;
+    private bool _helpAnnounced;
+    private void HandleBotHelp()
+    {
+        if (_task == null || !_task.helped) return;
+
+        if (!_helpAnnounced)
+        {
+            _helpAnnounced = true;
+            var chat = ChatRegistry.FindByBotId("stuart");
+            chat?.InjectBotLine("Relax. I'll get the ones you miss. I see them faster than you do now.", ominous: true);
+        }
+
+        _helpTimer -= Time.deltaTime;
+        if (_helpTimer <= 0f)
+        {
+            _helpTimer = 1.6f;   // auto-kill a threat roughly every 1.6s
+            AutoDestroyLowest();
+        }
+    }
+
+    private void AutoDestroyLowest()
+    {
+        if (_threats.Count == 0) return;
+        // Destroy the threat closest to the core (lowest remaining distance).
+        Threat nearest = null; float best = float.MaxValue;
+        foreach (var t in _threats)
+        {
+            float d = t.rt.anchoredPosition.magnitude;
+            if (d < best) { best = d; nearest = t; }
+        }
+        if (nearest != null)
+        {
+            _stopped++;
+            _threats.Remove(nearest);
+            Destroy(nearest.rt.gameObject);
+        }
     }
 
     private void HandleSpawns()
