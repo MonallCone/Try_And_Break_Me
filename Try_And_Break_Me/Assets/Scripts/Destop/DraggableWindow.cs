@@ -13,6 +13,28 @@ public class DraggableWindow : MonoBehaviour, IPointerDownHandler
     public RectTransform RectTransform { get; private set; }
     public RectTransform ContentArea { get; private set; }
     public string Title { get; private set; }
+
+    private UnityEngine.UI.Button _closeButton;
+    private UnityEngine.UI.Image _closeImage;
+
+    // Disable the close (X) button \u2014 used to lock bot windows so they can't be closed until the
+    // finale, when the X is repurposed into the delete trigger.
+    public void SetCloseEnabled(bool enabled)
+    {
+        if (_closeButton != null) _closeButton.interactable = enabled;
+        if (_closeImage != null)
+            _closeImage.color = enabled ? new Color(0.7f, 0.2f, 0.2f, 1f) : new Color(0.4f, 0.4f, 0.4f, 1f);
+    }
+
+    // Replace what the X does (e.g. start the delete struggle instead of closing).
+    public void SetCloseAction(System.Action action)
+    {
+        if (_closeButton == null) return;
+        _closeButton.onClick.RemoveAllListeners();
+        _closeButton.onClick.AddListener(() => action?.Invoke());
+        _closeButton.interactable = true;
+        if (_closeImage != null) _closeImage.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+    }
     public Sprite Icon { get; private set; }
 
     private WindowManager _manager;
@@ -104,6 +126,8 @@ public class DraggableWindow : MonoBehaviour, IPointerDownHandler
         closeLabel.text = "X"; closeLabel.fontSize = 14f; closeLabel.color = Color.white;
         closeLabel.alignment = TextAlignmentOptions.Center;
         closeGo.GetComponent<Button>().onClick.AddListener(() => manager.CloseWindow(win));
+        win._closeButton = closeGo.GetComponent<Button>();
+        win._closeImage = closeGo.GetComponent<Image>();
 
         // Content area (everything below the title bar)
         var contentGo = new GameObject("Content", typeof(RectTransform), typeof(RectMask2D));

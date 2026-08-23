@@ -34,6 +34,9 @@ public static class WorkDay
     // Fired whenever a task changes (completed) so the Tasks app can refresh.
     public static event Action Changed;
 
+    // Lets the story mark tasks done directly (e.g. the Day 3 blitz) and refresh the Tasks UI.
+    public static void RaiseChanged() { Changed?.Invoke(); }
+
     public static int Quota => Tasks.Count;
     public static int CompletedCount
     {

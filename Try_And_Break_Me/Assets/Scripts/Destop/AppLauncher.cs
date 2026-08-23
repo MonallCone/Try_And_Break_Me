@@ -237,6 +237,7 @@ public class AppLauncher : MonoBehaviour
         BotDock.Init(windowManager.windowLayer);
         BotDock.Dock(win);
         win.AddDockButton();
+        win.SetCloseEnabled(false);   // bot windows can't be closed until the finale (delete)
         // Release the slot when this bot window closes.
         var relay = win.gameObject.AddComponent<DestroyRelay>();
         relay.onDestroy = () => BotDock.Release(win);

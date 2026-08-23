@@ -15,6 +15,11 @@ public class CompanyChatApp : MonoBehaviour
 {
     public enum ChannelMode { Ambient, Silent, Calm }
 
+    // The live instance (if the window is open), so the story can flip it at runtime.
+    public static CompanyChatApp Current { get; private set; }
+    // Persists across window open/close: once true, the Company channel opens already "replaced".
+    public static bool CompanyReplaced = false;
+
     private class Channel
     {
         public string name;
@@ -29,8 +34,8 @@ public class CompanyChatApp : MonoBehaviour
     }
 
     [Header("Ambient timing")]
-    public float minInterval = 0.5f;
-    public float maxInterval = 1.0f;
+    public float minInterval = 1.2f;
+    public float maxInterval = 3.0f;
 
     private readonly List<Channel> _channels = new List<Channel>();
     private Channel _active;
@@ -74,6 +79,16 @@ public class CompanyChatApp : MonoBehaviour
         SeedTeamGhosts(team);
 
         SwitchTo(company);
+
+        Current = this;
+        // If the world has already flipped (Day 3), open the Company channel already replaced.
+        if (CompanyReplaced)
+            ApplyReplaced();
+    }
+
+    private void OnDestroy()
+    {
+        if (Current == this) Current = null;
     }
 
     private void Update()
@@ -143,7 +158,7 @@ public class CompanyChatApp : MonoBehaviour
     private void SeedTeamGhosts(Channel team)
     {
         // People were here once. Now it's just you.
-        string[] leavers = { "Marcus", "Priya", "Rhona", "Liam", "Nadia", "Cass"};
+        string[] leavers = { "Marcus", "Priya", "Rhona", "Liam", "Nadia" };
         foreach (var name in leavers)
             AddLineTo(team, $"<i><color=#888888>{name} left the channel</color></i>");
         AddLineTo(team, "<i><color=#888888>You are the only member of this channel.</color></i>");
@@ -175,13 +190,22 @@ public class CompanyChatApp : MonoBehaviour
     }
 
     // Story hook for Act 3: flip the company channel to eerie calm.
-    public void SwitchCompanyToReplaced()
+    public static void SwitchCompanyToReplaced()
+    {
+        CompanyReplaced = true;
+        if (Current != null) Current.ApplyReplaced();
+    }
+
+    private void ApplyReplaced()
     {
         var company = _channels.Find(c => c.name == "Company");
         if (company == null) return;
         company.mode = ChannelMode.Calm;
         company.playerHasTyped = false;
-        AddLineTo(company, "<i><color=#888888>\u2014 several people have left the channel \u2014</color></i>");
+        company.members = new List<string> { "Lauren", "Stuart", "Alex", "You" };
+        AddLineTo(company, "<i><color=#888888>\u2014 everyone else has left the channel \u2014</color></i>");
+        AddLineTo(company, "<i><color=#888888>\u2014 Lauren, Stuart and Alex were added \u2014</color></i>");
+        if (_active == company) RefreshHeader();
     }
 
     // Story hook: change a channel's member count later (people replaced/removed).

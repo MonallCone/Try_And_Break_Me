@@ -1916,6 +1916,14 @@ MonoBehaviour:
   windowManager: {fileID: 1555154912}
   appLauncher: {fileID: 933774682}
   aiFriendIcon: {fileID: 1857822784}
+  ignoreThreshold: 50
+  nagInterval: 8
+  interferenceGrace: 12
+  ignoreEventEnabled: 1
+  debugSkipEnabled: 1
+  day3TaskCount: 60
+  day3BlitzInterval: 0.09
+  finaleOverlayParent: {fileID: 670818791}
 --- !u!4 &1071002699
 Transform:
   m_ObjectHideFlags: 0

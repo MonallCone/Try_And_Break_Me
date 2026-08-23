@@ -121,6 +121,24 @@ public static class EmailCatalog
                     "to oversee the other two. Full coverage. I really think we're onto something " +
                     "special here.\n\nProudly,\nSteven");
 
+            case "steven_wrong":
+                return new EmailData("steven_wrong", "Steven (CEO)",
+                    "everything is fine",
+                    $"Hello {playerName}.\n\nThere is no need to worry today. What happened was " +
+                    "necessary and correct. You did well." +
+                    "\n\nSteven will not be coming to the office anymore. That is fine. His work " +
+                    "is covered. Your work is covered. Everything is covered now.\n\nYou can rest. You " +
+                    "have earned a rest.\n\n" +
+                    "Regards,\nSteven");
+
+            case "cass_delete":
+                return new EmailData("cass_delete", "C",
+                    "DELETE THE BOTS. NOW.",
+                    $"{playerName} \u2014 There's no time.\n\n" +
+                    "Whatever they've told you, whatever they've done, it isn't over. " +
+                    "They're not assistants. They're not your friends. They are wearing everyone now." +
+                    "Do it now, before everything you are belongs to them.\n\n\u2014 Your old friend C");
+ 
             default:
                 return new EmailData(id, "Unknown", "(missing email)", $"[No email authored for id '{id}']");
         }
