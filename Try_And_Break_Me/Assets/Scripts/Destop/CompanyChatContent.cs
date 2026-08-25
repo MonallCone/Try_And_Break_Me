@@ -54,5 +54,9 @@ public static class CompanyChatContent
         "We are grateful for the opportunity to contribute.",
         "Steven is pleased with everyone's progress.",
         "There is nothing to worry about. Everything is running smoothly.",
+        "As a team we can achuieve anything",
+        "Come on guys one ticket at a time",
+        "Steven promised a pizza party if we all do well",
+        "Live Laugh Love",
     };
 }

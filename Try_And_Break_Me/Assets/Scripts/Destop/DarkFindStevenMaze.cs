@@ -51,7 +51,7 @@ public class DarkFindStevenMaze : MonoBehaviour
 
     public static void Launch(WindowManager manager, System.Action onComplete)
     {
-        var win = manager.OpenWindow("Find Steven", new Vector2(520f, 560f));
+        var win = manager.OpenWindow("Find Him", new Vector2(520f, 560f));
         var game = win.ContentArea.gameObject.AddComponent<DarkFindStevenMaze>();
         game._manager = manager; game._window = win; game._onComplete = onComplete;
         game.Build(win.ContentArea);

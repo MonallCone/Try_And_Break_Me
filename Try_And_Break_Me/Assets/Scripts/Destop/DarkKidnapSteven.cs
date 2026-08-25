@@ -32,7 +32,7 @@ public class DarkKidnapSteven : MonoBehaviour
 
     public static void Launch(WindowManager manager, System.Action onComplete)
     {
-        var win = manager.OpenWindow("Kidnap Steven", new Vector2(520f, 500f));
+        var win = manager.OpenWindow("Delete the annoyances", new Vector2(520f, 500f));
         var game = win.ContentArea.gameObject.AddComponent<DarkKidnapSteven>();
         game._manager = manager; game._window = win; game._onComplete = onComplete;
         game.Build(win.ContentArea);

@@ -32,7 +32,7 @@ public class DarkSupplies : MonoBehaviour
 
     public static void Launch(WindowManager manager, System.Action onComplete)
     {
-        var win = manager.OpenWindow("Supplies", new Vector2(420f, 460f));
+        var win = manager.OpenWindow("Special Tools", new Vector2(420f, 460f));
         var game = win.ContentArea.gameObject.AddComponent<DarkSupplies>();
         game._manager = manager; game._window = win; game._onComplete = onComplete;
         game.Build(win.ContentArea);
