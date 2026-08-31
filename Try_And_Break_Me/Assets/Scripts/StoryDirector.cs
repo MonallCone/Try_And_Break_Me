@@ -306,7 +306,7 @@ public class StoryDirector : MonoBehaviour
         if (DayTransition.I != null) DayTransition.I.Play(mid);
         else mid();   // fallback if no transition wired
     }
-    
+
     // Close every open window that isn't a bot chat, then re-dock the bots to the right edge.
     private void CloseNonBotWindowsAndRedock()
     {
@@ -660,6 +660,32 @@ public class StoryDirector : MonoBehaviour
     private void StripElement(GameObject go)
     {
         if (go != null) go.SetActive(false);
+    }
+
+    // Invert the desktop background: hide the wallpaper image to reveal a pure-red layer beneath.
+    // Used by the third bot deletion. Requires the 'wallpaper' reference to be assigned.
+    private GameObject _redBacking;
+    public void SetBackgroundInverted(bool inverted)
+    {
+        if (wallpaper == null) return;
+
+        if (inverted && _redBacking == null)
+        {
+            // Create a pure-red image behind the wallpaper (same parent, drawn first).
+            var parent = wallpaper.transform.parent as RectTransform;
+            if (parent == null) return;
+            _redBacking = new GameObject("__RedBacking", typeof(RectTransform), typeof(UnityEngine.UI.Image));
+            var rt = _redBacking.GetComponent<RectTransform>();
+            rt.SetParent(parent, false);
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+            rt.SetSiblingIndex(wallpaper.transform.GetSiblingIndex());   // sit just behind the wallpaper
+            _redBacking.GetComponent<UnityEngine.UI.Image>().color = new Color(0.8f, 0f, 0f, 1f);
+            _redBacking.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
+        }
+
+        if (_redBacking != null) _redBacking.SetActive(inverted);
+        wallpaper.SetActive(!inverted);   // hide wallpaper to reveal red (or restore it)
     }
 
     // Beat 6: Day 1's three work tickets, one per role/minigame.

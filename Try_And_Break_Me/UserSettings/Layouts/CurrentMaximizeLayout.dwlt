@@ -1133,7 +1133,6 @@ MonoBehaviour:
     - m_Data: 49596
     - m_Data: 49598
     - m_Data: 49600
-    - m_Data: 49688
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1203,8 +1202,8 @@ MonoBehaviour:
     - m_Data: 0
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: BotDeletion
-      m_OriginalName: BotDeletion
+      m_Name: 
+      m_OriginalName: 
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
@@ -1212,10 +1211,10 @@ MonoBehaviour:
         width: 0
         height: 0
       m_UserData:
-        m_Data: 35566
+        m_Data: 0
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 0
+      m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
       m_ClientGUIView: {fileID: 10}
