@@ -285,9 +285,11 @@ public class StoryDirector : MonoBehaviour
     {
         if (GameState.I == null) return;
         GameState.I.SetFlag($"day{GameState.I.day}_ended");
-
         System.Action mid = () =>
         {
+            // Tidy the workspace: close every non-bot window, and re-dock the bots to the right.
+            CloseNonBotWindowsAndRedock();
+
             // Wipe the inbox and cheekily re-send the welcome email.
             Mailbox.Clear();
             Mailbox.Deliver("welcome");
@@ -297,13 +299,36 @@ public class StoryDirector : MonoBehaviour
             // Load the new day's tasks.
             if (GameState.I.day == 2) StartWorkDay2();
             if (GameState.I.day == 3) StartWorkDay3();
-            // Day 3 is set up when we build that beat.
 
             Debug.Log($"[Story] day advanced to {GameState.I.day}.");
         };
 
         if (DayTransition.I != null) DayTransition.I.Play(mid);
         else mid();   // fallback if no transition wired
+    }
+    
+    // Close every open window that isn't a bot chat, then re-dock the bots to the right edge.
+    private void CloseNonBotWindowsAndRedock()
+    {
+        if (windowManager == null || windowManager.Windows == null) return;
+
+        // Collect bot names so we can tell bot windows apart from apps.
+        var botNames = new System.Collections.Generic.HashSet<string>();
+        foreach (var c in ChatRegistry.All) if (c != null) botNames.Add(c.BotName);
+
+        // Snapshot the list (closing mutates it).
+        var snapshot = new System.Collections.Generic.List<DraggableWindow>(windowManager.Windows);
+        var bots = new System.Collections.Generic.List<DraggableWindow>();
+        foreach (var w in snapshot)
+        {
+            if (w == null) continue;
+            if (botNames.Contains(w.Title)) bots.Add(w);
+            else windowManager.CloseWindow(w);   // close apps/tasks/email/etc.
+        }
+
+        // Re-dock the bots neatly on the right.
+        BotDock.Init(windowManager.windowLayer);
+        foreach (var w in bots) BotDock.Redock(w);
     }
 
     // Day 2's tasks (8 tickets, only one HR so there's time for the sanity events to breathe).
@@ -517,7 +542,9 @@ public class StoryDirector : MonoBehaviour
             win.SetCloseEnabled(false);
             // The OTHER surviving bots panic in their own windows while this one is deleted.
             StartOnlookerReactions(botId);
-            BotDeletion.Begin(windowManager, win, chat, pleads, () =>
+            // deletionIndex: 0 = first bot deleted, 1 = second, 2 = third \u2014 drives escalating visuals.
+            int deletionIndex = _deletedCount;
+            BotDeletion.Begin(windowManager, win, chat, pleads, deletionIndex, () =>
             {
                 StopOnlookerReactions();
                 _deletedCount++;

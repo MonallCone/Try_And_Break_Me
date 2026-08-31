@@ -78,7 +78,6 @@ public class ChatController
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
         BuildTopRow(root);       // transcript + icon panel, flexible height
-        BuildDebug(root);        // small fixed
         BuildInputRow(root);     // fixed
 
         ChatRegistry.Register(this);   // so Sanity Events can find this chat
@@ -116,7 +115,7 @@ public class ChatController
         panelRt.SetParent(parent, false);
         panelGo.GetComponent<Image>().color = new Color(0.82f, 0.82f, 0.85f, 1f);
         var le = panelGo.AddComponent<LayoutElement>();
-        le.preferredWidth = 84f; le.minWidth = 84f;   // slim fixed width \u2014 transcript gets the rest
+        le.preferredWidth = 60f; le.minWidth = 60f;   // slim fixed width \u2014 transcript gets the rest
         var vlg = panelGo.AddComponent<VerticalLayoutGroup>();
         vlg.padding = new RectOffset(8, 8, 8, 8);
         vlg.spacing = 6f;
@@ -128,7 +127,7 @@ public class ChatController
         var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
         iconGo.GetComponent<RectTransform>().SetParent(panelRt, false);
         var iconImg = iconGo.GetComponent<Image>();
-        if (_icon != null) { iconImg.sprite = _icon; iconImg.preserveAspect = false; }
+        if (_icon != null) { iconImg.sprite = _icon; iconImg.preserveAspect = true; }
         else iconImg.color = new Color(0.6f, 0.6f, 0.65f, 1f);   // placeholder grey block
         var iconLe = iconGo.AddComponent<LayoutElement>();
         iconLe.flexibleHeight = 1f;    // stretch to fill the available vertical space
@@ -139,7 +138,7 @@ public class ChatController
         nameGo.GetComponent<RectTransform>().SetParent(panelRt, false);
         var nameT = nameGo.GetComponent<TextMeshProUGUI>();
         nameT.text = _sheet.Name;
-        nameT.fontSize = 16f; nameT.fontStyle = FontStyles.Bold;
+        nameT.fontSize = 13f; nameT.fontStyle = FontStyles.Bold;
         nameT.color = Color.black;
         nameT.alignment = TextAlignmentOptions.Center;
         nameT.textWrappingMode = TextWrappingModes.Normal;
@@ -199,18 +198,6 @@ public class ChatController
         _transcript.color = Color.black;
         _transcript.textWrappingMode = TextWrappingModes.Normal;
         _transcript.overflowMode = TextOverflowModes.Overflow;
-    }
-
-    private void BuildDebug(RectTransform parent)
-    {
-        var go = new GameObject("Debug", typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.GetComponent<RectTransform>().SetParent(parent, false);
-        var le = go.AddComponent<LayoutElement>();
-        le.minHeight = 70f; le.preferredHeight = 70f;
-        _debug = go.GetComponent<TextMeshProUGUI>();
-        _debug.fontSize = 14f;
-        _debug.color = new Color(0.15f, 0.4f, 0.15f, 1f); // dark green, readable on light
-        _debug.alignment = TextAlignmentOptions.TopLeft;
     }
 
     private void BuildInputRow(RectTransform parent)

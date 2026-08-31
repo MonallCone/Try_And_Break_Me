@@ -89,8 +89,9 @@ public static class BotDock
 
         Rect area = _windowLayer.rect;
         int n = bots.Count;
-        float w = Mathf.Min(320f, (area.width - 40f) / n);
-        float h = Mathf.Min(360f, area.height - 80f);
+        // Match the docked window size so they don't shrink when they gather.
+        float w = Mathf.Min(_slotWidth, (area.width - 30f) / n);
+        float h = Mathf.Min(area.height * 0.62f, area.height - 80f);
         float totalW = w * n + 12f * (n - 1);
         float startX = -totalW * 0.5f + w * 0.5f;
 

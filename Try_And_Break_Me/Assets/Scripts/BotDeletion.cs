@@ -28,13 +28,17 @@ public class BotDeletion : MonoBehaviour
 
     // Start the deletion struggle inside an existing bot window.
     public static void Begin(WindowManager manager, DraggableWindow window, ChatController botChat,
-                             bool pleads, System.Action onDeleted)
+                             bool pleads, int deletionIndex, System.Action onDeleted)
     {
         var comp = window.ContentArea.gameObject.AddComponent<BotDeletion>();
         comp._manager = manager; comp._window = window; comp._botChat = botChat;
-        comp._pleads = pleads; comp._onDeleted = onDeleted;
+        comp._pleads = pleads; comp._deletionIndex = deletionIndex; comp._onDeleted = onDeleted;
         comp.Build(window.ContentArea);
     }
+
+    private int _deletionIndex;      // 0 = first bot deleted, 1 = second, 2 = third
+    private Image _rootImg;          // the deletion window background (for colour inversion)
+    private bool _inverted;
 
     private void Build(RectTransform content)
     {
@@ -43,7 +47,8 @@ public class BotDeletion : MonoBehaviour
 
         var root = NewRect(content, "DeleteRoot");
         Stretch(root);
-        root.gameObject.AddComponent<Image>().color = new Color(0.1f, 0.05f, 0.05f);
+        _rootImg = root.gameObject.AddComponent<Image>();
+        _rootImg.color = new Color(0.1f, 0.05f, 0.05f);
 
         // Big clear typed-so-far indicator (white), showing correctly-clicked letters building up.
         _typed = MakeText(root, "", 40, Color.white);
@@ -173,6 +178,63 @@ public class BotDeletion : MonoBehaviour
     {
         foreach (var b in _letterButtons)
             if (b != null) b.GetComponent<RectTransform>().anchoredPosition = RandomPos();
+
+        // Escalating effects (fire on every button move):
+        //  index 0: invert the minigame's colours.
+        //  index 1: also jerk the other (not-yet-deleted) bot windows around.
+        //  index 2: also invert the whole desktop background.
+        InvertMinigameColours();
+        if (_deletionIndex >= 1) JerkOtherBotWindows();
+        if (_deletionIndex >= 2) InvertDesktopBackground();
+    }
+
+    private void InvertMinigameColours()
+    {
+        _inverted = !_inverted;
+        // Flip the deletion window background and the letter tiles between two states.
+        if (_rootImg != null)
+            _rootImg.color = _inverted ? new Color(0.9f, 0.9f, 0.92f) : new Color(0.1f, 0.05f, 0.05f);
+        foreach (var b in _letterButtons)
+        {
+            if (b == null) continue;
+            var img = b.GetComponent<Image>();
+            if (img != null) img.color = _inverted ? new Color(0.2f, 0.75f, 0.75f) : new Color(0.8f, 0.25f, 0.25f);
+        }
+        // Keep the typed/reaction text readable against whichever background.
+        if (_typed != null) _typed.color = _inverted ? Color.black : Color.white;
+    }
+
+    private bool _releasedOthers;
+    private void JerkOtherBotWindows()
+    {
+        if (_manager == null || _manager.Windows == null) return;
+
+        // First time: undock the other bot windows so they're free to roam the whole screen
+        // instead of being held in their dock slots.
+        if (!_releasedOthers)
+        {
+            _releasedOthers = true;
+            foreach (var w in _manager.Windows)
+                if (w != null && w != _window) BotDock.Release(w);
+        }
+
+        var layer = _manager.windowLayer;
+        float hw = layer != null ? layer.rect.width * 0.5f - 120f : 400f;
+        float hh = layer != null ? layer.rect.height * 0.5f - 120f : 250f;
+        foreach (var w in _manager.Windows)
+        {
+            if (w == null || w == _window) continue;
+            // teleport each to a random spot anywhere on screen every swap
+            w.RectTransform.anchoredPosition = new Vector2(Random.Range(-hw, hw), Random.Range(-hh, hh));
+        }
+    }
+
+    private static bool _bgInverted;
+    private void InvertDesktopBackground()
+    {
+        _bgInverted = !_bgInverted;
+        // Hide the wallpaper image to reveal a pure-red backing beneath (like the taskbar inverts).
+        if (StoryDirector.I != null) StoryDirector.I.SetBackgroundInverted(_bgInverted);
     }
 
     private void JerkWindow()
@@ -207,6 +269,11 @@ public class BotDeletion : MonoBehaviour
             yield return null;
         }
         if (_manager != null && _window != null) _manager.CloseWindow(_window);
+
+        // Reset any desktop background inversion so it doesn't bleed into the next deletion / finale.
+        if (StoryDirector.I != null) StoryDirector.I.SetBackgroundInverted(false);
+        _bgInverted = false;
+
         _onDeleted?.Invoke();
     }
 
