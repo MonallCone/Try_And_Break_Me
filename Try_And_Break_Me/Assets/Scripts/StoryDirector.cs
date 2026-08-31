@@ -80,6 +80,9 @@ public class StoryDirector : MonoBehaviour
         StartWorkDay3();
     }
 
+    // Sanity Event 2: during the work day, a bot the player hasn't messaged in a while gets
+    // agitated and nags, escalating to yelling. Talking to it resets it. Suppressed while other
+    // scripted sequences are running so it doesn't collide with them.
     private void TickIgnoreEvent()
     {
         if (!ignoreEventEnabled || GameState.I == null) return;
@@ -502,6 +505,10 @@ public class StoryDirector : MonoBehaviour
 
     private IEnumerator Beat19Sequence()
     {
+        // Mark the end sequence (enables scream-on-ominous-line) and swap to the finale ambience.
+        if (GameState.I != null) GameState.I.SetFlag("end_sequence");
+        SoundManager.StartEndAmbience();
+
         yield return new WaitForSeconds(2f);
         Mailbox.Deliver("cass_delete");
 
@@ -686,6 +693,7 @@ public class StoryDirector : MonoBehaviour
 
         if (_redBacking != null) _redBacking.SetActive(inverted);
         wallpaper.SetActive(!inverted);   // hide wallpaper to reveal red (or restore it)
+        if (inverted) SoundManager.FogHorn();
     }
 
     // Beat 6: Day 1's three work tickets, one per role/minigame.
