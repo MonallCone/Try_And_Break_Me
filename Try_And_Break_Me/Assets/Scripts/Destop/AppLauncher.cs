@@ -21,7 +21,7 @@ public class AppLauncher : MonoBehaviour
 
     [Header("Window sizes")]
     public Vector2 creatorSize = new Vector2(460f, 620f);
-    public Vector2 chatSize = new Vector2(500f, 560f);
+    public Vector2 chatSize = new Vector2(560f, 580f);
 
     [Header("Relay")]
     public string baseUrl = "http://localhost:8000";
@@ -138,6 +138,23 @@ public class AppLauncher : MonoBehaviour
             return;
         }
 
+        // Day 1: the first time each task TYPE is opened, show a how-to-play tutorial first.
+        if (GameState.I != null && GameState.I.day == 1)
+        {
+            string flag = "tut_" + task.type;
+            if (!GameState.I.HasFlag(flag))
+            {
+                GameState.I.SetFlag(flag);
+                TaskTutorial.Show(windowManager, task.type, () => StartMinigame(task));
+                return;
+            }
+        }
+
+        StartMinigame(task);
+    }
+
+    private void StartMinigame(WorkTask task)
+    {
         switch (task.type)
         {
             case TaskType.HRSwipe:      HRSwipeGame.Launch(windowManager, task); break;

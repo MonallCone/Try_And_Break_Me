@@ -11,23 +11,32 @@ using TMPro;
 // MonoBehaviour for keyboard input each frame.
 public class HelpDeskMazeGame : MonoBehaviour
 {
-    // Hand-designed maze. '#' wall, '.' path, 'S' start, 'G' goal. Edit freely (keep it rectangular).
-    private static readonly string[] Layout =
+    // Hand-designed mazes. '#' wall, '.' path, 'S' start, 'G' goal. One is picked at random per play.
+    private static readonly string[][] MazePool =
     {
-        "#############",
-        "#S..#.....#.#",
-        "#.#.#.###.#.#",
-        "#.#...#...#.#",
-        "#.#####.###.#",
-        "#.....#.#...#",
-        "#.###.#.#.#.#",
-        "#...#...#.#.#",
-        "###.#####.#.#",
-        "#...#.....#.#",
-        "#.#.#.#####.#",
-        "#.#.......#G#",
-        "#############",
+        new[] {
+            "#############","#S..#.....#.#","#.#.#.###.#.#","#.#...#...#.#","#.#####.###.#",
+            "#.....#.#...#","#.###.#.#.#.#","#...#...#.#.#","###.#####.#.#","#...#.....#.#",
+            "#.#.#.#####.#","#.#.......#G#","#############",
+        },
+        new[] {
+            "#############","#S........#.#","#.#######.#.#","#.#.....#.#.#","#.#.###.#.#.#",
+            "#.#.#.#.#.#.#","#.#.#.#.#.#.#","#...#.#...#.#","###.#.###.#.#","#...#...#.#.#",
+            "#.#####.#.#.#","#......G#...#","#############",
+        },
+        new[] {
+            "#############","#S#.......#.#","#.#.#####.#.#","#.#.#...#.#.#","#.#.#.#.#.#.#",
+            "#...#.#.#.#.#","#####.#.#.#.#","#.....#.#...#","#.#####.###.#","#.#...#...#.#",
+            "#.#.#.###.#.#","#...#.....#G#","#############",
+        },
+        new[] {
+            "#############","#S..........#","#.#########.#","#.#.......#.#","#.#.#####.#.#",
+            "#.#.#...#.#.#","#.#.#.#.#.#.#","#.#.#.#...#.#","#.#.#.#####.#","#.#.#......G#",
+            "#.#.#######.#","#...........#","#############",
+        },
     };
+
+    private string[] _layout;   // the maze chosen for this play
 
     private WorkTask _task;
     private WindowManager _manager;
@@ -143,12 +152,13 @@ public class HelpDeskMazeGame : MonoBehaviour
 
     private void ParseMaze()
     {
-        _rows = Layout.Length; _cols = Layout[0].Length;
+        _layout = MazePool[Random.Range(0, MazePool.Length)];
+        _rows = _layout.Length; _cols = _layout[0].Length;
         _wall = new bool[_rows, _cols];
         for (int r = 0; r < _rows; r++)
             for (int c = 0; c < _cols; c++)
             {
-                char ch = Layout[r][c];
+                char ch = _layout[r][c];
                 _wall[r, c] = ch == '#';
                 if (ch == 'S') { _start = new Vector2Int(r, c); }
                 if (ch == 'G') { _goal = new Vector2Int(r, c); }

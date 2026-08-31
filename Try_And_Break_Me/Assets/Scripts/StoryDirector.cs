@@ -311,14 +311,14 @@ public class StoryDirector : MonoBehaviour
     {
         var tasks = new System.Collections.Generic.List<WorkTask>
         {
-            new WorkTask("d2_cyber1", "Second malware wave hitting the servers", TaskType.CyberShooter, "stuart"),
-            new WorkTask("d2_help1",  "Help desk: unlock the finance team's accounts", TaskType.HelpDeskMaze, "alex"),
+            new WorkTask("d2_cyber1", "Second malware wave hitting the servers", TaskType.CyberShooter, "stuart") { helped = true },
+            new WorkTask("d2_help1",  "Help desk: unlock the finance team's accounts", TaskType.HelpDeskMaze, "alex") { helped = true },
             new WorkTask("d2_hr",     "Review this week's holiday requests", TaskType.HRSwipe, "lauren") { helped = true },
-            new WorkTask("d2_cyber2", "Quarantine a suspicious login attempt", TaskType.CyberShooter, "stuart"),
+            new WorkTask("d2_cyber2", "Quarantine a suspicious login attempt", TaskType.CyberShooter, "stuart") { helped = true },
             new WorkTask("d2_help2",  "Help desk: reset a locked-out manager", TaskType.HelpDeskMaze, "alex") { helped = true },
             new WorkTask("d2_cyber3", "Intrusion detected on the mail server", TaskType.CyberShooter, "stuart") { helped = true },
-            new WorkTask("d2_help3",  "Help desk: recover a corrupted user profile", TaskType.HelpDeskMaze, "alex"),
-            new WorkTask("d2_cyber4", "Contain a ransomware probe", TaskType.CyberShooter, "stuart"),
+            new WorkTask("d2_help3",  "Help desk: recover a corrupted user profile", TaskType.HelpDeskMaze, "alex") { helped = true },
+            new WorkTask("d2_cyber4", "Contain a ransomware probe", TaskType.CyberShooter, "stuart") { helped = true },
         };
         WorkDay.StartDay(2, tasks);
         Debug.Log("[Story] Day 2 work started (8 tasks).");

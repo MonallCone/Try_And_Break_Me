@@ -54,7 +54,6 @@ public class FinaleSequence : MonoBehaviour
 
         // --- glitch shake ---
         float t = 2.2f;
-        var allOverlays = _overlayParent;
         while (t > 0f)
         {
             t -= Time.deltaTime;
@@ -64,12 +63,36 @@ public class FinaleSequence : MonoBehaviour
             yield return null;
         }
 
+        // --- camera spam: copies of the feed flood the whole screen ---
+        Rect area = _overlayParent.rect;
+        float hw = area.width * 0.5f, hh = area.height * 0.5f;
+        int bursts = 60;
+        for (int i = 0; i < bursts; i++)
+        {
+            var copy = new GameObject("CamCopy", typeof(RectTransform), typeof(RawImage));
+            var crt = copy.GetComponent<RectTransform>();
+            crt.SetParent(_overlayParent, false);
+            crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f);
+            crt.pivot = new Vector2(0.5f, 0.5f);
+            float w = Random.Range(160f, 360f);
+            crt.sizeDelta = new Vector2(w, w * 0.8f);
+            crt.anchoredPosition = new Vector2(Random.Range(-hw, hw), Random.Range(-hh, hh));
+            crt.localRotation = Quaternion.Euler(0, 0, Random.Range(-12f, 12f));
+            var ri = copy.GetComponent<RawImage>();
+            if (_cam != null) { ri.texture = _cam; ri.color = Color.white; }
+            else ri.color = Color.black;
+            crt.SetAsLastSibling();
+            // accelerate the flood
+            if (i % 4 == 0) yield return new WaitForSeconds(0.04f);
+        }
+        yield return new WaitForSeconds(0.5f);
+
         // --- BSOD ---
-        StopCamera();
         var bsod = NewPanel("BSOD", Vector2.zero, new Color(0.0f, 0.15f, 0.55f, 1f));
         bsod.anchorMin = Vector2.zero; bsod.anchorMax = Vector2.one;
         bsod.offsetMin = Vector2.zero; bsod.offsetMax = Vector2.zero;
         bsod.SetAsLastSibling();
+        StopCamera();   // stop after the blue panel already covers the camera copies
 
         var msg = MakeText(bsod, BsodText(), 20, Color.white);
         msg.alignment = TextAlignmentOptions.TopLeft;

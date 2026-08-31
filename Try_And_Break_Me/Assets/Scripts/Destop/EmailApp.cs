@@ -98,7 +98,7 @@ public class EmailApp
         labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;
         labelRt.offsetMin = new Vector2(12, 2); labelRt.offsetMax = new Vector2(-10, -2);
         var label = labelGo.GetComponent<TextMeshProUGUI>();
-        label.fontSize = 15f; label.color = Color.black;
+        label.fontSize = 17f; label.color = Color.black;
         label.textWrappingMode = TextWrappingModes.Normal;
         label.overflowMode = TextOverflowModes.Overflow;
         label.alignment = TextAlignmentOptions.TopLeft;
@@ -129,9 +129,9 @@ public class EmailApp
         vlg.childControlWidth = true; vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
-        _readFrom = MakeText(paneRt, "", 16, FontStyles.Bold);
-        _readSubject = MakeText(paneRt, "Select an email to read.", 19, FontStyles.Bold);
-        _readBody = MakeText(paneRt, "", 16f, FontStyles.Normal);
+        _readFrom = MakeText(paneRt, "", 18, FontStyles.Bold);
+        _readSubject = MakeText(paneRt, "Select an email to read.", 21, FontStyles.Bold);
+        _readBody = MakeText(paneRt, "", 18f, FontStyles.Normal);
     }
 
     private void OpenEmail(EmailData email)

@@ -128,7 +128,7 @@ public class CompanyChatApp : MonoBehaviour
         lblGo.GetComponent<RectTransform>().SetParent(btnGo.transform, false);
         Stretch(lblGo.GetComponent<RectTransform>());
         var lbl = lblGo.GetComponent<TextMeshProUGUI>();
-        lbl.text = ch.name; lbl.fontSize = 14f; lbl.color = Color.black;
+        lbl.text = ch.name; lbl.fontSize = 16f; lbl.color = Color.black;
         lbl.alignment = TextAlignmentOptions.Center;
 
         ch.nextPost = Time.time + Random.Range(minInterval, maxInterval);
@@ -244,7 +244,7 @@ public class CompanyChatApp : MonoBehaviour
         txtRt.anchorMin = Vector2.zero; txtRt.anchorMax = Vector2.one;
         txtRt.offsetMin = new Vector2(10, 0); txtRt.offsetMax = new Vector2(-10, 0);
         _headerText = txtGo.GetComponent<TextMeshProUGUI>();
-        _headerText.fontSize = 14f; _headerText.color = new Color(0.2f, 0.2f, 0.25f);
+        _headerText.fontSize = 16f; _headerText.color = new Color(0.2f, 0.2f, 0.25f);
         _headerText.alignment = TextAlignmentOptions.Left;
         _headerText.fontStyle = FontStyles.Bold;
     }
@@ -296,7 +296,7 @@ public class CompanyChatApp : MonoBehaviour
         var textGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         textGo.GetComponent<RectTransform>().SetParent(crt, false);
         logText = textGo.GetComponent<TextMeshProUGUI>();
-        logText.text = ""; logText.fontSize = 16f; logText.color = Color.black;
+        logText.text = ""; logText.fontSize = 18f; logText.color = Color.black;
         logText.textWrappingMode = TextWrappingModes.Normal;
         logText.alignment = TextAlignmentOptions.TopLeft;
 
@@ -330,14 +330,14 @@ public class CompanyChatApp : MonoBehaviour
         phGo.GetComponent<RectTransform>().SetParent(textAreaRt, false);
         Stretch(phGo.GetComponent<RectTransform>());
         var ph = phGo.GetComponent<TextMeshProUGUI>();
-        ph.text = "Message..."; ph.fontSize = 15f; ph.color = new Color(0.5f, 0.5f, 0.5f);
+        ph.text = "Message..."; ph.fontSize = 17f; ph.color = new Color(0.5f, 0.5f, 0.5f);
         ph.alignment = TextAlignmentOptions.Left;
 
         var itGo = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
         itGo.GetComponent<RectTransform>().SetParent(textAreaRt, false);
         Stretch(itGo.GetComponent<RectTransform>());
         var it = itGo.GetComponent<TextMeshProUGUI>();
-        it.fontSize = 15f; it.color = Color.black; it.alignment = TextAlignmentOptions.Left;
+        it.fontSize = 17f; it.color = Color.black; it.alignment = TextAlignmentOptions.Left;
 
         _input.textViewport = textAreaRt;
         _input.textComponent = it;
@@ -355,7 +355,7 @@ public class CompanyChatApp : MonoBehaviour
         blGo.GetComponent<RectTransform>().SetParent(btnGo.transform, false);
         Stretch(blGo.GetComponent<RectTransform>());
         var bl = blGo.GetComponent<TextMeshProUGUI>();
-        bl.text = "Send"; bl.fontSize = 15f; bl.color = Color.white; bl.alignment = TextAlignmentOptions.Center;
+        bl.text = "Send"; bl.fontSize = 17f; bl.color = Color.white; bl.alignment = TextAlignmentOptions.Center;
     }
 
     private void AddLineTo(Channel ch, string richLine)

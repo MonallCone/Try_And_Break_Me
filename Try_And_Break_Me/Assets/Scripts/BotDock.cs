@@ -13,7 +13,7 @@ public static class BotDock
     private static RectTransform _windowLayer;
 
     // Dock geometry, computed from the window layer size.
-    private static float _slotWidth = 440f;
+    private static float _slotWidth = 500f;
     private static float _taskbarReserve = 44f;   // leave room at the bottom for the taskbar
 
     public static void Init(RectTransform windowLayer)

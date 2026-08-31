@@ -28,12 +28,12 @@ public class TasksApp
         vlg.childControlWidth = true; vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
-        _header = MakeText(root, "", 18, FontStyles.Bold, 28);
+        _header = MakeText(root, "", 20, FontStyles.Bold, 30);
 
-        MakeText(root, "To do", 15, FontStyles.Bold, 22);
+        MakeText(root, "To do", 17, FontStyles.Bold, 24);
         _todoContent = BuildListSection(root, flexible: true);
 
-        MakeText(root, "Completed", 15, FontStyles.Bold, 22);
+        MakeText(root, "Completed", 17, FontStyles.Bold, 24);
         _doneContent = BuildListSection(root, flexible: true);
 
         WorkDay.Changed += Refresh;
@@ -78,7 +78,7 @@ public class TasksApp
         labelRt.anchorMin = Vector2.zero; labelRt.anchorMax = Vector2.one;
         labelRt.offsetMin = new Vector2(10, 0); labelRt.offsetMax = new Vector2(-10, 0);
         var label = labelGo.GetComponent<TextMeshProUGUI>();
-        label.fontSize = 14f; label.color = Color.black; label.alignment = TextAlignmentOptions.Left;
+        label.fontSize = 16f; label.color = Color.black; label.alignment = TextAlignmentOptions.Left;
         label.textWrappingMode = TextWrappingModes.Normal;
 
         if (task.status == TaskStatus.Completed)
