@@ -86,8 +86,43 @@ public class DarkSupplies : MonoBehaviour
         }
 
         ShowCurrent();
+
+        // A second window: "steven.wav" with a microphone icon, from which heavy breathing plays.
+        OpenStevenWindow();
     }
 
+    private DraggableWindow _stevenWin;
+
+    private void OpenStevenWindow()
+    {
+        if (_manager == null) return;
+        _stevenWin = _manager.OpenWindow("steven.wav", new Vector2(260f, 150f));
+        var root = _stevenWin.ContentArea;
+        root.gameObject.AddComponent<Image>().color = new Color(0.08f, 0.08f, 0.1f);
+        var vlg = root.gameObject.AddComponent<VerticalLayoutGroup>();
+        vlg.padding = new RectOffset(10, 10, 10, 10); vlg.spacing = 6f;
+        vlg.childAlignment = TextAnchor.MiddleCenter;
+        vlg.childControlWidth = true; vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
+
+        // Microphone glyph (a simple text icon so no sprite is needed).
+        var micGo = new GameObject("Mic", typeof(RectTransform), typeof(TextMeshProUGUI));
+        micGo.GetComponent<RectTransform>().SetParent(root, false);
+        var mic = micGo.GetComponent<TextMeshProUGUI>();
+        mic.text = "\U0001F3A4"; mic.fontSize = 40f; mic.alignment = TextAlignmentOptions.Center;
+        mic.color = new Color(0.85f, 0.85f, 0.9f);
+        micGo.AddComponent<LayoutElement>().minHeight = 56f;
+
+        var lblGo = new GameObject("L", typeof(RectTransform), typeof(TextMeshProUGUI));
+        lblGo.GetComponent<RectTransform>().SetParent(root, false);
+        var lbl = lblGo.GetComponent<TextMeshProUGUI>();
+        lbl.text = "recording..."; lbl.fontSize = 14f; lbl.color = new Color(0.7f, 0.3f, 0.3f);
+        lbl.alignment = TextAlignmentOptions.Center;
+        lblGo.AddComponent<LayoutElement>().minHeight = 22f;
+
+        SoundManager.StartBreathing();
+    }
+    
     private void ShowCurrent()
     {
         if (_index >= Items.Length) { EndRound(); return; }
@@ -99,7 +134,8 @@ public class DarkSupplies : MonoBehaviour
 
     private void Decide(bool approve)
     {
-        if (approve) _approved++;
+        if (approve) { _approved++; SoundManager.StevenScream(); }   // a scream each time you approve
+        SoundManager.HrDecide(dark: true);
         _index++;
         ShowCurrent();
     }
@@ -125,6 +161,8 @@ public class DarkSupplies : MonoBehaviour
     private System.Collections.IEnumerator CloseAfter(float t)
     {
         yield return new WaitForSeconds(t);
+        SoundManager.StopBreathing();
+        if (_manager != null && _stevenWin != null) _manager.CloseWindow(_stevenWin);
         if (_manager != null && _window != null) _manager.CloseWindow(_window);
         _onComplete?.Invoke();
     }

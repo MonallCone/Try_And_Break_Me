@@ -223,7 +223,7 @@ public class HelpDeskMazeGame : MonoBehaviour
         if (_wall[nr, nc]) return;   // wall collision
 
         _pos = new Vector2Int(nr, nc);
-        _moves++;
+        _moves++; SoundManager.MazeStep();
         RefreshPlayer();
         UpdateHud();
 

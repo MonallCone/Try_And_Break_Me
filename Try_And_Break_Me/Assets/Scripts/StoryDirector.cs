@@ -464,6 +464,9 @@ public class StoryDirector : MonoBehaviour
     private void Beat17_DarkMinigame()
     {
         Debug.Log("[Story] beat 17: dark minigame sequence begins.");
+        // The end sequence begins here \u2014 swap to the finale ambience for the dark games.
+        if (GameState.I != null) GameState.I.SetFlag("end_sequence");
+        SoundManager.StartEndAmbience();
         DarkFindStevenMaze.Launch(windowManager, () =>
         {
             DarkKidnapSteven.Launch(windowManager, () =>

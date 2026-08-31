@@ -32,6 +32,7 @@ public static class Mailbox
         if (email == null) return;
         _emails.Insert(0, email);
         Changed?.Invoke();
+        SoundManager.EmailPing();
     }
 
     public static void MarkRead(EmailData email)

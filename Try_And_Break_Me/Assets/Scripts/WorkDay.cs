@@ -59,6 +59,7 @@ public static class WorkDay
         task.score = Mathf.Clamp(score, 0, 100);
         task.status = TaskStatus.Completed;
         Changed?.Invoke();
+        SoundManager.TaskComplete();
 
         // The matching bot comments in its chat window.
         BotComments.Deliver(task);

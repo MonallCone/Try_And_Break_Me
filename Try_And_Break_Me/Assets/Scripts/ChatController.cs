@@ -59,6 +59,10 @@ public class ChatController
         if (_transcript == null) return;
         string body = ominous ? $"<color=#b03030>{line}</color>" : line;
         Append($"<b>{BotName}:</b> {body}");
+        SoundManager.MessageReceive();
+        // During the finale, ominous bot lines also trigger a scream effect.
+        if (ominous && GameState.I != null && GameState.I.HasFlag("end_sequence"))
+            SoundManager.Scream();
         // Deliberately NOT added to _history, so the scripted line stays outside the bot's normal
         // LLM memory and doesn't get "explained away" on the next turn.
     }
@@ -78,6 +82,7 @@ public class ChatController
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
         BuildTopRow(root);       // transcript + icon panel, flexible height
+        BuildDebug(root);        // small fixed
         BuildInputRow(root);     // fixed
 
         ChatRegistry.Register(this);   // so Sanity Events can find this chat
@@ -200,6 +205,18 @@ public class ChatController
         _transcript.overflowMode = TextOverflowModes.Overflow;
     }
 
+    private void BuildDebug(RectTransform parent)
+    {
+        var go = new GameObject("Debug", typeof(RectTransform), typeof(TextMeshProUGUI));
+        go.GetComponent<RectTransform>().SetParent(parent, false);
+        var le = go.AddComponent<LayoutElement>();
+        le.minHeight = 70f; le.preferredHeight = 70f;
+        _debug = go.GetComponent<TextMeshProUGUI>();
+        _debug.fontSize = 14f;
+        _debug.color = new Color(0.15f, 0.4f, 0.15f, 1f); // dark green, readable on light
+        _debug.alignment = TextAlignmentOptions.TopLeft;
+    }
+
     private void BuildInputRow(RectTransform parent)
     {
         var rowGo = new GameObject("InputRow", typeof(RectTransform));
@@ -244,6 +261,7 @@ public class ChatController
         _input.textComponent = inputText;
         _input.placeholder = placeholder;
         _input.onSubmit.AddListener(_ => OnSend());
+        _input.onValueChanged.AddListener(_ => SoundManager.TypewriterTick());
 
         // Send button
         var btnGo = new GameObject("Send", typeof(RectTransform), typeof(Image), typeof(Button));
@@ -274,6 +292,7 @@ public class ChatController
         SetBusy(true);
         _history.Add(new ChatMessage("user", userText));
         Append($"<b>You:</b> {userText}");
+        SoundManager.MessageSend();
 
         try
         {
@@ -293,6 +312,7 @@ public class ChatController
             DialogueResult result = await _provider.GenerateAsync(_systemPrompt, _history);
             _history.Add(new ChatMessage("assistant", result.Reply));
             Append($"<b>{_sheet.Name}:</b> {result.Reply}");
+            SoundManager.MessageReceive();
 
             RefreshDebug(score, turn);
         }

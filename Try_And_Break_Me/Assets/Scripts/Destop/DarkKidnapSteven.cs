@@ -32,7 +32,7 @@ public class DarkKidnapSteven : MonoBehaviour
 
     public static void Launch(WindowManager manager, System.Action onComplete)
     {
-        var win = manager.OpenWindow("Delete the annoyances", new Vector2(520f, 500f));
+        var win = manager.OpenWindow("Kidnap Steven", new Vector2(520f, 500f));
         var game = win.ContentArea.gameObject.AddComponent<DarkKidnapSteven>();
         game._manager = manager; game._window = win; game._onComplete = onComplete;
         game.Build(win.ContentArea);
@@ -127,7 +127,7 @@ public class DarkKidnapSteven : MonoBehaviour
         float rx = _fieldW * 0.5f - 10f, ry = _fieldH * 0.5f - 10f;
         rt.anchoredPosition = new Vector2(Mathf.Cos(ang) * rx, Mathf.Sin(ang) * ry);
         var threat = new Threat { rt = rt };
-        go.GetComponent<Button>().onClick.AddListener(() => { if (_threats.Contains(threat)) { _threats.Remove(threat); Destroy(go); } });
+        go.GetComponent<Button>().onClick.AddListener(() => { if (_threats.Contains(threat)) { _threats.Remove(threat); Destroy(go); SoundManager.CyberHit(dark: true); } });
         _threats.Add(threat);
     }
 

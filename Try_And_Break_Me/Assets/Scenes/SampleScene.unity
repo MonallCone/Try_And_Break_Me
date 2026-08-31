@@ -2688,6 +2688,72 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!1 &1528857221
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1528857223}
+  - component: {fileID: 1528857222}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1528857222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528857221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e74aeeeb6eb75f488c52fd9172f7fa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundManager
+  taskComplete: {fileID: 8300000, guid: 8bf8b02880fd61a4293f90e76d5de650, type: 3}
+  messageSend: {fileID: 8300000, guid: 39524eee39b42a945b061378ac49216e, type: 3}
+  messageReceive: {fileID: 8300000, guid: 756b4902fe1ec6e4dacfde6988f21c8d, type: 3}
+  messageReceiveDay3: {fileID: 8300000, guid: 473ee2f9016875240bec1a440e487f6b, type: 3}
+  botCreated: {fileID: 8300000, guid: 756b4902fe1ec6e4dacfde6988f21c8d, type: 3}
+  emailPing: {fileID: 8300000, guid: c022f10fb9f270b40be690e5dea6ffd3, type: 3}
+  fogHorn: {fileID: 8300000, guid: a7c4173d353515949af72cb37b5dd482, type: 3}
+  scream: {fileID: 8300000, guid: c75bf13e692c4ac4b9fcf52140aadb68, type: 3}
+  typewriter: {fileID: 8300000, guid: 48a22d935eab3424390d050626273725, type: 3}
+  cyberHit: {fileID: 8300000, guid: dc9638f94e5efc24e8375de5af1e19e4, type: 3}
+  cyberHitDark: {fileID: 8300000, guid: 2fc1fa788cfbc6445ac4bd90c39ca2c2, type: 3}
+  mazeStep: {fileID: 8300000, guid: dc9638f94e5efc24e8375de5af1e19e4, type: 3}
+  mazeStepDark: {fileID: 8300000, guid: 790d3259575e56d45807b5c4dea7da03, type: 3}
+  hrDecide: {fileID: 8300000, guid: dc9638f94e5efc24e8375de5af1e19e4, type: 3}
+  hrDecideDark: {fileID: 8300000, guid: dc9638f94e5efc24e8375de5af1e19e4, type: 3}
+  stevenBreathing: {fileID: 8300000, guid: af316d669f64e764ab39d485b266ea16, type: 3}
+  stevenScream: {fileID: 8300000, guid: c75bf13e692c4ac4b9fcf52140aadb68, type: 3}
+  backgroundMusic: {fileID: 8300000, guid: 0e640fabd17e51445ae959a6900a5338, type: 3}
+  endSequenceAmbience: {fileID: 8300000, guid: 40a4991aed4b59640a59e8a1cffe4963, type: 3}
+  sfxVolume: 0.6
+  musicVolume: 0.5
+  typeVolume: 0.4
+--- !u!4 &1528857223
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528857221}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1023.5285, y: 810.3969, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1555154911
 GameObject:
   m_ObjectHideFlags: 0
@@ -3647,3 +3713,4 @@ SceneRoots:
   - {fileID: 127009587}
   - {fileID: 1071002699}
   - {fileID: 1895769837}
+  - {fileID: 1528857223}

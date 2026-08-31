@@ -139,7 +139,7 @@ public class CyberShooterGame : MonoBehaviour
         }
         if (nearest != null)
         {
-            _stopped++;
+            _stopped++; SoundManager.CyberHit();
             _threats.Remove(nearest);
             Destroy(nearest.rt.gameObject);
         }
@@ -213,7 +213,7 @@ public class CyberShooterGame : MonoBehaviour
     {
         if (_done || t == null || t.rt == null) return;
         if (!_threats.Contains(t)) return;
-        _stopped++;
+        _stopped++; SoundManager.CyberHit();
         _threats.Remove(t);
         Destroy(t.rt.gameObject);
     }

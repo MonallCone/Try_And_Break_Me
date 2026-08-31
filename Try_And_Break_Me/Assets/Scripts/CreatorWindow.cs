@@ -284,6 +284,7 @@ public class CreatorWindow
             Confidence    = (int)_sliders["confidence"].value,
         };
 
+        SoundManager.BotCreated();
         OnCreate?.Invoke(sheet, emotion, IconFor(_selectedId));
     }
 

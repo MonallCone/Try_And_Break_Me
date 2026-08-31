@@ -110,6 +110,7 @@ public class HRSwipeGame
     private void Decide(bool approve)
     {
         if (approve) _approved++; else _rejected++;
+        SoundManager.HrDecide();
         _index++;
         ShowCurrent();
     }
