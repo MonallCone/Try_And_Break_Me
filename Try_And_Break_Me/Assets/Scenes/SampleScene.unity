@@ -1924,6 +1924,9 @@ MonoBehaviour:
   day3TaskCount: 60
   day3BlitzInterval: 0.09
   finaleOverlayParent: {fileID: 670818791}
+  iconLayer: {fileID: 917238360}
+  taskbar: {fileID: 394914015}
+  wallpaper: {fileID: 1465409130}
 --- !u!4 &1071002699
 Transform:
   m_ObjectHideFlags: 0
@@ -1952,6 +1955,7 @@ GameObject:
   - component: {fileID: 1075143695}
   - component: {fileID: 1075143694}
   - component: {fileID: 1075143693}
+  - component: {fileID: 1075143697}
   m_Layer: 5
   m_Name: Tasks
   m_TagString: Untagged
@@ -2089,6 +2093,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1075143691}
   m_CullTransparentMesh: 1
+--- !u!114 &1075143697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1075143691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcf9641052d9b5a46ae581a7d6f7449e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TaskBadge
 --- !u!1 &1081912114
 GameObject:
   m_ObjectHideFlags: 0

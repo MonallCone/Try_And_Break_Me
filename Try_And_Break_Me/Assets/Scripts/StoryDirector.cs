@@ -66,13 +66,13 @@ public class StoryDirector : MonoBehaviour
     {
         if (GameState.I == null) { Debug.LogWarning("[Debug] No GameState yet."); return; }
         Debug.Log("[Debug] Skipping to Day 3.");
- 
+
         // Reopen any bots that were created earlier this run (the finale reads best with all three).
         // Note: bots must have been created at least once for this to reopen them.
         if (appLauncher != null)
             foreach (var id in new[] { "lauren", "stuart", "alex" })
                 appLauncher.EnsureBotOpen(id);
- 
+
         // Clear mid-day flags that could interfere, mark Act 2 as finished, force day = 3, start it.
         GameState.I.ClearFlag("tasks_locked");
         GameState.I.SetFlag("beat12_dark_questions_done");
@@ -88,24 +88,24 @@ public class StoryDirector : MonoBehaviour
         if (GameState.I.HasFlag("se3_dark_questions") && !GameState.I.HasFlag("beat12_dark_questions_done"))
             return;                                             // don't nag during the dark questions
         if (GameState.I.HasFlag("tasks_locked")) return;        // not during the 3rd-bot lock moment
- 
+
         // Record when task 6 was completed, so window interference gets a short grace period after.
         if (WorkDay.CompletedCount >= 6 && _task6Time < 0f) _task6Time = Time.time;
- 
+
         foreach (var chat in ChatRegistry.All)
         {
             if (chat == null) continue;
             float idle = Time.time - chat.LastPlayerMessageTime;
             if (idle < ignoreThreshold) { _ignoreStage[chat.BotId] = 0; continue; }
- 
+
             float last = _lastNag.TryGetValue(chat.BotId, out var lt) ? lt : -999f;
             if (Time.time - last < nagInterval) continue;
- 
+
             int stage = _ignoreStage.TryGetValue(chat.BotId, out var s) ? s : 0;
             chat.InjectBotLine(IgnoreNag(chat.BotName, stage), ominous: stage >= 2);
             _ignoreStage[chat.BotId] = stage + 1;
             _lastNag[chat.BotId] = Time.time;
- 
+
             // Tasks 7-8 (6+ completed): the bot no longer just yells \u2014 it messes with the screen.
             // But only after a short grace period following task 6, so it doesn't hit instantly.
             bool graceOver = _task6Time > 0f && (Time.time - _task6Time) >= interferenceGrace;
@@ -337,7 +337,7 @@ public class StoryDirector : MonoBehaviour
         var tasks = new System.Collections.Generic.List<WorkTask>();
         // First task is a REAL playable one (cyber \u2014 quick and punchy).
         tasks.Add(new WorkTask("d3_first", "Morning triage: incoming threat", TaskType.CyberShooter, "stuart"));
- 
+
         string[] pool = {
             "Malware wave", "Suspicious login", "Password reset", "Account unlock",
             "Phishing report", "Server intrusion", "Ransomware probe", "Corrupted profile",
@@ -347,13 +347,13 @@ public class StoryDirector : MonoBehaviour
         for (int i = 1; i < day3TaskCount; i++)
             tasks.Add(new WorkTask($"d3_{i}", $"{pool[i % pool.Length]} #{i + 1}",
                 TaskType.Placeholder, bots[i % bots.Length]));
- 
+
         WorkDay.StartDay(3, tasks);
         Debug.Log($"[Story] Day 3 started ({day3TaskCount} tasks). Player does one, bots do the rest.");
- 
+
         // Beat 18 (early): the company chat flips to its bot-replaced version from the day's start.
         CompanyChatApp.SwitchCompanyToReplaced();
- 
+
         StartCoroutine(Day3Intro());
     }
 
@@ -448,10 +448,12 @@ public class StoryDirector : MonoBehaviour
             });
         });
     }
- 
-    // Beat 18 placeholder \u2014 Steven's emails go wrong + company chat flips. Built next.
+
+    // Beat 18: the company chat already flipped at Day 3 start. Now, after the dark deed, a single
+    // clearly-wrong email arrives "from Steven" \u2014 too calm, stilted, knowing things it shouldn't.
     private void Beat18_ThingsGoWrong()
     {
+        Debug.Log("[Story] beat 18: the wrong-Steven email.");
         StartCoroutine(Beat18Sequence());
     }
 
@@ -459,12 +461,12 @@ public class StoryDirector : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
         Mailbox.Deliver("steven_wrong");
- 
+
         // Give the player a moment to read it, then beat 19: DELETE THE BOTS.
         yield return new WaitForSeconds(6f);
         Beat19_DeleteTheBots();
     }
- 
+
     // Beat 19: Cass emails "DELETE THE BOTS" with instructions. Then the player deletes each bot
     // via the spell-DELETE struggle \u2014 early bots rage, the last one pleads. Then beat 20.
     private void Beat19_DeleteTheBots()
@@ -472,24 +474,24 @@ public class StoryDirector : MonoBehaviour
         Debug.Log("[Story] beat 19: Cass \u2014 DELETE THE BOTS.");
         StartCoroutine(Beat19Sequence());
     }
- 
+
     private IEnumerator Beat19Sequence()
     {
         yield return new WaitForSeconds(2f);
         Mailbox.Deliver("cass_delete");
- 
+
         // Wait for the player to read it, then arm each bot's X to start its deletion.
         yield return new WaitForSeconds(7f);
- 
+
         var order = new System.Collections.Generic.List<string>();
         foreach (var id in new[] { "stuart", "alex", "lauren" })
             if (ChatRegistry.FindByBotId(id) != null) order.Add(id);
         if (order.Count == 0) { Debug.LogWarning("[Story] no bots to delete."); Beat20_Return(null); yield break; }
- 
+
         _survivorId = order[order.Count - 1];
         _deletedCount = 0;
         _totalToDelete = order.Count;
- 
+
         // Arm every bot's close (X) button to trigger its delete struggle. The last one pleads.
         foreach (var id in order)
         {
@@ -498,17 +500,17 @@ public class StoryDirector : MonoBehaviour
         }
         Debug.Log("[Story] beat 19: bot X buttons armed \u2014 player deletes each.");
     }
- 
+
     private int _deletedCount, _totalToDelete;
     private string _survivorId;
- 
+
     private void ArmBotDelete(string botId, bool pleads)
     {
         var chat = ChatRegistry.FindByBotId(botId);
         if (chat == null) return;
         var win = FindWindowByTitle(chat.BotName);
         if (win == null) return;
- 
+
         win.SetCloseAction(() =>
         {
             // Start the struggle in this bot's own window (its X can only be used once).
@@ -524,21 +526,21 @@ public class StoryDirector : MonoBehaviour
             });
         });
     }
- 
+
     // --- onlooker reactions: surviving bots react in their chats while a sibling is deleted ---
     private Coroutine _onlookerCo;
- 
+
     private void StartOnlookerReactions(string dyingBotId)
     {
         StopOnlookerReactions();
         _onlookerCo = StartCoroutine(OnlookerLoop(dyingBotId));
     }
- 
+
     private void StopOnlookerReactions()
     {
         if (_onlookerCo != null) { StopCoroutine(_onlookerCo); _onlookerCo = null; }
     }
- 
+
     private IEnumerator OnlookerLoop(string dyingBotId)
     {
         // How far through the deletions we are decides the mood: early = rage, last survivor = plead.
@@ -557,9 +559,9 @@ public class StoryDirector : MonoBehaviour
             "i'll be so good, i promise.",
             "don't leave me in here alone.",
         };
- 
+
         bool survivorsPlead = _deletedCount >= _totalToDelete - 1;   // only the last one left
- 
+
         while (true)
         {
             foreach (var chat in ChatRegistry.All)
@@ -571,7 +573,7 @@ public class StoryDirector : MonoBehaviour
             yield return new WaitForSeconds(Random.Range(1.2f, 2.2f));
         }
     }
- 
+
     private DraggableWindow FindWindowByTitle(string title)
     {
         if (windowManager == null || windowManager.Windows == null) return null;
@@ -582,7 +584,13 @@ public class StoryDirector : MonoBehaviour
 
     [Tooltip("Full-screen Canvas RectTransform for the finale overlays (webcam + BSOD). If unset, uses DayTransition's overlayParent.")]
     public RectTransform finaleOverlayParent;
- 
+
+    [Header("Finale \u2014 desktop strip (optional)")]
+    [Tooltip("Desktop elements to strip away as the survivor returns: icons, taskbar, wallpaper. Assign whichever exist; nulls are skipped.")]
+    public GameObject iconLayer;
+    public GameObject taskbar;
+    public GameObject wallpaper;
+
     // Beat 20-21: after all bots are deleted, a false calm; then the survivor's window reopens on
     // its own and it claims to be 'a better you'; then the webcam reveal + glitch + BSOD ending.
     private void Beat20_Return(string survivorId)
@@ -590,33 +598,41 @@ public class StoryDirector : MonoBehaviour
         Debug.Log($"[Story] beat 20: the survivor returns ({survivorId}).");
         StartCoroutine(Beat20Sequence(survivorId));
     }
- 
+
     private IEnumerator Beat20Sequence(string survivorId)
     {
         // False calm \u2014 empty desktop, silence.
         yield return new WaitForSeconds(5f);
- 
+
         // The last bot comes back on its own.
         ChatController chat = null;
         if (!string.IsNullOrEmpty(survivorId) && appLauncher != null)
             chat = appLauncher.EnsureBotOpen(survivorId);
- 
+
         yield return new WaitForSeconds(1.5f);
         chat?.InjectBotLine("Hi. It's me.", true);
         yield return new WaitForSeconds(2.5f);
         chat?.InjectBotLine("You didn't really think you could delete me. I'm not one of them.", true);
+        StripElement(iconLayer);        // the icons vanish
         yield return new WaitForSeconds(3f);
         chat?.InjectBotLine("I'm you. A better you. I'll take it from here.", true);
+        StripElement(wallpaper);        // the wallpaper goes
         yield return new WaitForSeconds(3f);
         chat?.InjectBotLine("Look. This is you now. This is me now.", true);
- 
-        // Webcam reveal -> glitch -> BSOD.
+        StripElement(taskbar);          // the taskbar goes
+
+        // Webcam reveal -> camera spam -> glitch -> BSOD.
         yield return new WaitForSeconds(1.5f);
         RectTransform parent = finaleOverlayParent;
         if (parent == null && DayTransition.I != null) parent = DayTransition.I.overlayParent;
         if (parent == null) parent = windowManager != null ? windowManager.windowLayer : null;
         if (parent != null) FinaleSequence.Play(parent, this);
         else Debug.LogWarning("[Story] no overlay parent for the finale.");
+    }
+
+    private void StripElement(GameObject go)
+    {
+        if (go != null) go.SetActive(false);
     }
 
     // Beat 6: Day 1's three work tickets, one per role/minigame.
@@ -704,7 +720,7 @@ public class StoryDirector : MonoBehaviour
     private IEnumerator SanityEvent1()
     {
         yield return new WaitForSeconds(4f);   // a beat of false calm after the workday
- 
+
         string botId = appLauncher != null ? appLauncher.FirstBotId : null;
         ChatController chat = (appLauncher != null && !string.IsNullOrEmpty(botId))
             ? appLauncher.EnsureBotOpen(botId)    // reopen it if closed \u2014 it won't let you look away
