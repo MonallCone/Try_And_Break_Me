@@ -11,7 +11,7 @@ public class RelayDialogueProvider : IDialogueProvider
 {
     private readonly string _endpoint;
 
-    public RelayDialogueProvider(string baseUrl = "http://localhost:8000")
+    public RelayDialogueProvider(string baseUrl = "https://try-and-break-me-python-service.onrender.com")
     {
         _endpoint = baseUrl.TrimEnd('/') + "/generate";
     }
@@ -30,7 +30,9 @@ public class RelayDialogueProvider : IDialogueProvider
         byte[] body = Encoding.UTF8.GetBytes(json);
         req.uploadHandler = new UploadHandlerRaw(body);
         req.downloadHandler = new DownloadHandlerBuffer();
+        req.certificateHandler = new AcceptAllCertificates();  
         req.SetRequestHeader("Content-Type", "application/json");
+        req.timeout = 60;
 
         var op = req.SendWebRequest();
         while (!op.isDone) await Task.Yield();   // non-blocking; UI stays responsive

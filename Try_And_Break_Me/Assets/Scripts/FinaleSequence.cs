@@ -88,6 +88,7 @@ public class FinaleSequence : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         // --- BSOD ---
+        SoundManager.StopAllMusic();   // the crash lands in silence
         var bsod = NewPanel("BSOD", Vector2.zero, new Color(0.0f, 0.15f, 0.55f, 1f));
         bsod.anchorMin = Vector2.zero; bsod.anchorMax = Vector2.one;
         bsod.offsetMin = Vector2.zero; bsod.offsetMax = Vector2.zero;

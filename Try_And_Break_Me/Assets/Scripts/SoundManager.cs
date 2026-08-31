@@ -170,4 +170,13 @@ public class SoundManager : MonoBehaviour
 
     // Steven's scream \u2014 distinct from the general end-sequence scream. Fires on each approved item.
     public static void StevenScream() { if (I) I.OneShot(I.stevenScream, I.sfxVolume); }
+
+    // Silence all looping audio (used at the blue screen \u2014 the crash lands in silence).
+    public static void StopAllMusic()
+    {
+        if (I == null) return;
+        if (I._music != null) I._music.Stop();
+        if (I._ambience != null) I._ambience.Stop();
+        if (I._breathing != null) I._breathing.Stop();
+    }
 }

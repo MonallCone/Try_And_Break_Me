@@ -411,6 +411,7 @@ public class StoryDirector : MonoBehaviour
             task.score = Random.Range(80, 101);
             task.status = TaskStatus.Completed;
             WorkDay.RaiseChanged();
+            SoundManager.TaskComplete();   // the rapid-fire completion spam
 
             yield return new WaitForSeconds(day3BlitzInterval);
         }

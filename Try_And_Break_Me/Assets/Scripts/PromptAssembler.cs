@@ -46,7 +46,7 @@ public static class PromptAssembler
 
         // 3) Global guardrails for the chat format.
         sb.AppendLine();
-        sb.AppendLine("Reply only as this character, in first person, in 1-3 short paragraphs. " +
+        sb.AppendLine("Reply only as this character, in first person, in 1 or 2 short paragraphs. " +
                       "Never break character or mention being an AI.");
 
         return sb.ToString();

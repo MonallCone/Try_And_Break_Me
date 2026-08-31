@@ -1,22 +1,3 @@
-"""
-Phase 3 relay server — GEMINI version with the DIRECTOR scoring endpoint.
-
-This extends the Phase 1/2 server with a second endpoint, /score, used by the AI Director.
-Each player turn now makes TWO calls:
-  1. POST /score     -> the Director reads the player's message + the bot's identity and
-                        returns JSON scores for the content-based sanity drivers.
-  2. POST /generate  -> the bot's reply (unchanged from before).
-
-Design split (important):
-  - The Director (here) scores only what needs judgement of MESSAGE CONTENT:
-        rudeness, off-topic/out-of-character, contradiction/nonsense.
-  - Time-decay and neglect are NOT scored here — they're not about content. Unity computes
-    those. This keeps the LLM doing only the job an LLM is needed for.
-
-Setup (same as before, plus nothing new):
-    set GEMINI_API_KEY=your-key-here
-    python -m uvicorn server_gemini:app --reload --port 8000
-"""
 import os
 import json
 import time

@@ -10,7 +10,7 @@ public class RelayDirectorProvider : IDirectorProvider
 {
     private readonly string _endpoint;
 
-    public RelayDirectorProvider(string baseUrl = "http://localhost:8000")
+    public RelayDirectorProvider(string baseUrl = "https://try-and-break-me-python-service.onrender.com")
     {
         _endpoint = baseUrl.TrimEnd('/') + "/score";
     }
@@ -32,7 +32,9 @@ public class RelayDirectorProvider : IDirectorProvider
         byte[] body = Encoding.UTF8.GetBytes(json);
         req.uploadHandler = new UploadHandlerRaw(body);
         req.downloadHandler = new DownloadHandlerBuffer();
+        req.certificateHandler = new AcceptAllCertificates();   // accept Render's HTTPS cert
         req.SetRequestHeader("Content-Type", "application/json");
+        req.timeout = 60;   // allow for Render free-tier cold starts (server waking up)
 
         var op = req.SendWebRequest();
         while (!op.isDone) await Task.Yield();

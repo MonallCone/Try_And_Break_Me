@@ -24,7 +24,7 @@ public class AppLauncher : MonoBehaviour
     public Vector2 chatSize = new Vector2(560f, 580f);
 
     [Header("Relay")]
-    public string baseUrl = "http://localhost:8000";
+    public string baseUrl = "https://try-and-break-me-python-service.onrender.com";
 
     [Header("Sanity")]
     public SanityModel sanityTemplate = new SanityModel();
