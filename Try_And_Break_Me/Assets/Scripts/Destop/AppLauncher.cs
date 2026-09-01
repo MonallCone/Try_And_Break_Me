@@ -32,8 +32,24 @@ public class AppLauncher : MonoBehaviour
     private IDialogueProvider _provider;
     private IDirectorProvider _director;
 
+    // Static handle so code-launched systems (minigames) can reach the assigned character icons.
+    public static AppLauncher I { get; private set; }
+
+    // Look up a character icon by bot id (uses the icons already assigned in the Inspector).
+    public Sprite IconForBot(string botId)
+    {
+        switch (botId)
+        {
+            case "lauren": return laurenIcon;
+            case "stuart": return stuartIcon;
+            case "alex":   return alexIcon;
+            default:       return null;
+        }
+    }
+
     private void Awake()
     {
+        I = this;
         _provider = new RelayDialogueProvider(baseUrl);
         _director = new RelayDirectorProvider(baseUrl);
     }

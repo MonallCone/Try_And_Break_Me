@@ -22,6 +22,8 @@ public class HRSwipeGame
     private TMP_Text _name;
     private TMP_Text _details;
     private RectTransform _cardRoot;
+    private UnityEngine.UI.Image _verdictBg;
+    private TMP_Text _verdictText;
 
     public static void Launch(WindowManager manager, WorkTask task)
     {
@@ -69,6 +71,41 @@ public class HRSwipeGame
         _details = MakeText(_cardRoot, "", 16, FontStyles.Normal, 120, TextAlignmentOptions.Center);
         _details.textWrappingMode = TextWrappingModes.Normal;
 
+        // Lauren's verdict bar (only when helped) \u2014 sits above the buttons, shows her opinion clearly.
+        if (_task != null && _task.helped)
+        {
+            var vGo = new GameObject("LaurenVerdict", typeof(RectTransform), typeof(Image));
+            vGo.GetComponent<RectTransform>().SetParent(root, false);
+            _verdictBg = vGo.GetComponent<Image>();
+            _verdictBg.color = new Color(0.9f, 0.9f, 0.92f);
+            var vle = vGo.AddComponent<LayoutElement>();
+            vle.minHeight = 44f; vle.preferredHeight = 44f;
+
+            // Lauren's face on the left (if a sprite is assigned).
+            Sprite lauren = AppLauncher.I != null ? AppLauncher.I.IconForBot("lauren") : null;
+            if (lauren != null)
+            {
+                var faceGo = new GameObject("Face", typeof(RectTransform), typeof(Image));
+                var frt = faceGo.GetComponent<RectTransform>();
+                frt.SetParent(vGo.transform, false);
+                frt.anchorMin = new Vector2(0, 0.5f); frt.anchorMax = new Vector2(0, 0.5f);
+                frt.pivot = new Vector2(0, 0.5f);
+                frt.sizeDelta = new Vector2(38f, 38f);
+                frt.anchoredPosition = new Vector2(4f, 0f);
+                var fImg = faceGo.GetComponent<Image>();
+                fImg.sprite = lauren; fImg.preserveAspect = true; fImg.color = Color.white;
+            }
+
+            var vGoT = new GameObject("T", typeof(RectTransform), typeof(TextMeshProUGUI));
+            var vrt = vGoT.GetComponent<RectTransform>();
+            vrt.SetParent(vGo.transform, false);
+            vrt.anchorMin = Vector2.zero; vrt.anchorMax = Vector2.one;
+            vrt.offsetMin = new Vector2(46, 0); vrt.offsetMax = new Vector2(-8, 0);   // leave room for the face
+            _verdictText = vGoT.GetComponent<TextMeshProUGUI>();
+            _verdictText.fontSize = 16f; _verdictText.fontStyle = FontStyles.Bold;
+            _verdictText.alignment = TextAlignmentOptions.Center;
+        }
+
         // Buttons row
         var rowGo = new GameObject("Buttons", typeof(RectTransform));
         rowGo.GetComponent<RectTransform>().SetParent(root, false);
@@ -99,11 +136,13 @@ public class HRSwipeGame
         _details.text = $"<b>{r.days} day{(r.days == 1 ? "" : "s")}</b>   ({r.dates})\n\n\"{r.reason}\"";
 
         // Bot help (hard-coded): Lauren pre-advises a decision on each ticket.
-        if (_task != null && _task.helped)
+        if (_task != null && _task.helped && _verdictText != null)
         {
-            string advice = r.days <= 5 ? "<color=#2a8a3a>Lauren suggests: Approve</color>"
-                                        : "<color=#a83232>Lauren suggests: Reject</color>";
-            _details.text += $"\n\n{advice}";
+            bool approve = r.days <= 5;
+            _verdictText.text = approve ? "\u2714  Lauren says: APPROVE" : "\u2716  Lauren says: REJECT";
+            _verdictText.color = approve ? new Color(0.15f, 0.5f, 0.2f) : new Color(0.6f, 0.15f, 0.15f);
+            if (_verdictBg != null)
+                _verdictBg.color = approve ? new Color(0.85f, 0.95f, 0.85f) : new Color(0.97f, 0.85f, 0.85f);
         }
     }
 

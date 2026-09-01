@@ -117,31 +117,84 @@ public class CyberShooterGame : MonoBehaviour
             _helpAnnounced = true;
             var chat = ChatRegistry.FindByBotId("stuart");
             chat?.InjectBotLine("Relax. I'll get the ones you miss. I see them faster than you do now.", ominous: true);
+            SpawnHelper();
         }
 
-        _helpTimer -= Time.deltaTime;
-        if (_helpTimer <= 0f)
+        MoveHelper();
+    }
+
+    private RectTransform _helper;   // Stuart's helper circle
+    private Threat _helperTarget;
+
+    private void SpawnHelper()
+    {
+        var go = new GameObject("StuartHelper", typeof(RectTransform), typeof(Image));
+        go.GetComponent<RectTransform>().SetParent(_field, false);
+        var img = go.GetComponent<Image>();
+        _helper = go.GetComponent<RectTransform>();
+        _helper.anchorMin = _helper.anchorMax = new Vector2(0.5f, 0.5f);
+        _helper.pivot = new Vector2(0.5f, 0.5f);
+        _helper.sizeDelta = new Vector2(36f, 36f);
+        _helper.anchoredPosition = new Vector2(0, _coreRadius + 40f);   // start near the core
+
+        Sprite icon = AppLauncher.I != null ? AppLauncher.I.IconForBot("stuart") : null;
+        if (icon != null)
         {
-            _helpTimer = 1.6f;   // auto-kill a threat roughly every 1.6s
-            AutoDestroyLowest();
+            img.sprite = icon; img.preserveAspect = true; img.color = Color.white;
+        }
+        else
+        {
+            // fallback: blue circle with an "S"
+            img.color = new Color(0.3f, 0.55f, 0.9f);
+            img.sprite = CircleSprite();
+            var lblGo = new GameObject("S", typeof(RectTransform), typeof(TextMeshProUGUI));
+            var lrt = lblGo.GetComponent<RectTransform>();
+            lrt.SetParent(go.transform, false);
+            lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one; lrt.offsetMin = Vector2.zero; lrt.offsetMax = Vector2.zero;
+            var lbl = lblGo.GetComponent<TextMeshProUGUI>();
+            lbl.text = "S"; lbl.fontSize = 16f; lbl.color = Color.white; lbl.fontStyle = FontStyles.Bold;
+            lbl.alignment = TextAlignmentOptions.Center;
         }
     }
 
-    private void AutoDestroyLowest()
+    private void MoveHelper()
     {
-        if (_threats.Count == 0) return;
-        // Destroy the threat closest to the core (lowest remaining distance).
-        Threat nearest = null; float best = float.MaxValue;
-        foreach (var t in _threats)
+        if (_helper == null) return;
+
+        // Pick a target: the threat closest to the core, if any.
+        if (_helperTarget == null || !_threats.Contains(_helperTarget))
         {
-            float d = t.rt.anchoredPosition.magnitude;
-            if (d < best) { best = d; nearest = t; }
+            _helperTarget = null;
+            float best = float.MaxValue;
+            foreach (var t in _threats)
+            {
+                float d = t.rt.anchoredPosition.magnitude;
+                if (d < best) { best = d; _helperTarget = t; }
+            }
         }
-        if (nearest != null)
+
+        if (_helperTarget == null)
+        {
+            // idle: orbit the core slowly
+            float ang = Time.time * 1.2f;
+            _helper.anchoredPosition = new Vector2(Mathf.Cos(ang), Mathf.Sin(ang)) * (_coreRadius + 40f);
+            return;
+        }
+
+        // chase the target and destroy it on contact
+        Vector2 pos = _helper.anchoredPosition;
+        Vector2 tgt = _helperTarget.rt.anchoredPosition;
+        Vector2 dir = (tgt - pos);
+        float dist = dir.magnitude;
+        float speed = 320f;
+        _helper.anchoredPosition = pos + dir.normalized * Mathf.Min(speed * Time.deltaTime, dist);
+
+        if (dist < 22f)
         {
             _stopped++; SoundManager.CyberHit();
-            _threats.Remove(nearest);
-            Destroy(nearest.rt.gameObject);
+            _threats.Remove(_helperTarget);
+            Destroy(_helperTarget.rt.gameObject);
+            _helperTarget = null;
         }
     }
 

@@ -112,23 +112,28 @@ public class ChatController
         BuildIconPanel(rowRt);   // fixed width square + name
     }
 
-    // Fixed-width panel on the right: a big icon square with the character's name beneath.
     private void BuildIconPanel(RectTransform parent)
     {
         var panelGo = new GameObject("IconPanel", typeof(RectTransform), typeof(Image));
         var panelRt = panelGo.GetComponent<RectTransform>();
         panelRt.SetParent(parent, false);
         panelGo.GetComponent<Image>().color = new Color(0.82f, 0.82f, 0.85f, 1f);
+ 
+        // Enforce a slim fixed width. Set preferred AND flexible so the parent layout can't
+        // stretch it: flexibleWidth = 0 stops it growing to fill spare horizontal space.
         var le = panelGo.AddComponent<LayoutElement>();
-        le.preferredWidth = 60f; le.minWidth = 60f;   // slim fixed width \u2014 transcript gets the rest
+        le.preferredWidth = 72f;   // <-- the actual panel width; change this to taste
+        le.minWidth = 72f;
+        le.flexibleWidth = 0f;     // <-- key: do NOT grow to fill the row
+ 
         var vlg = panelGo.AddComponent<VerticalLayoutGroup>();
-        vlg.padding = new RectOffset(8, 8, 8, 8);
-        vlg.spacing = 6f;
+        vlg.padding = new RectOffset(4, 4, 4, 4);
+        vlg.spacing = 2f;
         vlg.childAlignment = TextAnchor.UpperCenter;
         vlg.childControlWidth = true; vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
-
-        // The icon square — fills the panel width, stays square-ish and stretches to fill.
+ 
+        // The icon square — fills the (now slim) panel width and takes the vertical space.
         var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
         iconGo.GetComponent<RectTransform>().SetParent(panelRt, false);
         var iconImg = iconGo.GetComponent<Image>();
@@ -136,8 +141,8 @@ public class ChatController
         else iconImg.color = new Color(0.6f, 0.6f, 0.65f, 1f);   // placeholder grey block
         var iconLe = iconGo.AddComponent<LayoutElement>();
         iconLe.flexibleHeight = 1f;    // stretch to fill the available vertical space
-        iconLe.flexibleWidth = 1f;     // and the panel width
-
+        // NOTE: no flexibleWidth here \u2014 it was pushing the panel wider than preferredWidth.
+ 
         // The character name under the icon
         var nameGo = new GameObject("Name", typeof(RectTransform), typeof(TextMeshProUGUI));
         nameGo.GetComponent<RectTransform>().SetParent(panelRt, false);
