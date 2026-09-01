@@ -109,6 +109,9 @@ public class StoryDirector : MonoBehaviour
             _ignoreStage[chat.BotId] = stage + 1;
             _lastNag[chat.BotId] = Time.time;
 
+            // Being ignored erodes THIS bot's coherence (Act 2 neglect). Talking to it recovers.
+            Coherence.DrainBot(chat.BotId, 4f);
+
             // Tasks 7-8 (6+ completed): the bot no longer just yells \u2014 it messes with the screen.
             // But only after a short grace period following task 6, so it doesn't hit instantly.
             bool graceOver = _task6Time > 0f && (Time.time - _task6Time) >= interferenceGrace;
@@ -177,6 +180,7 @@ public class StoryDirector : MonoBehaviour
     {
         if (_started) return;
         _started = true;
+        Coherence.ResetAll();   // start each game at full coherence
 
         // A welcome email is already there at login (feels like a normal work inbox).
         Mailbox.Deliver("welcome");
@@ -467,6 +471,7 @@ public class StoryDirector : MonoBehaviour
         Debug.Log("[Story] beat 17: dark minigame sequence begins.");
         // The end sequence begins here \u2014 swap to the finale ambience for the dark games.
         if (GameState.I != null) GameState.I.SetFlag("end_sequence");
+        Coherence.ForceZero();   // coherence is gone by the end sequence
         SoundManager.StartEndAmbience();
         DarkFindStevenMaze.Launch(windowManager, () =>
         {
@@ -705,9 +710,9 @@ public class StoryDirector : MonoBehaviour
     {
         var tasks = new System.Collections.Generic.List<WorkTask>
         {
+            new WorkTask("d1_hr",    "Approve or reject this week's holiday requests", TaskType.HRSwipe, "lauren"),
             new WorkTask("d1_cyber", "Contain the malware outbreak on the network", TaskType.CyberShooter, "stuart"),
             new WorkTask("d1_help",  "Help desk: reset Steven's forgotten password", TaskType.HelpDeskMaze, "alex"),
-            new WorkTask("d1_hr",    "Approve or reject this week's holiday requests", TaskType.HRSwipe, "lauren"),
         };
         WorkDay.StartDay(1, tasks);
         Debug.Log("[Story] beat 6: Day 1 work started (3 tasks).");
@@ -784,6 +789,7 @@ public class StoryDirector : MonoBehaviour
     // demanding a second bot. Forces the bot's window open if the player closed it.
     private IEnumerator SanityEvent1()
     {
+        Coherence.Event();   // sanity event drops overall coherence one notch
         yield return new WaitForSeconds(4f);   // a beat of false calm after the workday
 
         string botId = appLauncher != null ? appLauncher.FirstBotId : null;
@@ -874,6 +880,7 @@ public class StoryDirector : MonoBehaviour
     private IEnumerator SanityEvent3()
     {
         yield return new WaitForSeconds(4f);   // a beat after the last task
+        Coherence.Event(Coherence.EventStep * 2f);   // the dark questions hit coherence harder
 
         // Ensure every created bot's window is open (reopen any the player closed).
         if (appLauncher != null)

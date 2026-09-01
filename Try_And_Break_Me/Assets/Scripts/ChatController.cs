@@ -28,6 +28,8 @@ public class ChatController
     private Button _sendButton;
     private ScrollRect _scroll;
     private TMP_Text _debug;
+    private Image _coherenceFill;
+    private TMP_Text _coherenceLabel;
 
     public ChatController(CharacterSheet sheet, EmotionProfile emotion, SanityModel sanity,
                           IDialogueProvider provider, IDirectorProvider director, Sprite icon = null)
@@ -90,9 +92,7 @@ public class ChatController
 
         // Unregister automatically when the window (this content) is destroyed.
         var relay = root.gameObject.AddComponent<DestroyRelay>();
-        relay.onDestroy = () => ChatRegistry.Unregister(this);
-
-        RefreshDebug(null, default);
+        relay.onDestroy = () => { ChatRegistry.Unregister(this); Coherence.Changed -= RefreshCoherenceBar; };
     }
 
     // Top row: transcript on the left (flexible), icon panel on the right (fixed width).
@@ -207,14 +207,48 @@ public class ChatController
 
     private void BuildDebug(RectTransform parent)
     {
-        var go = new GameObject("Debug", typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.GetComponent<RectTransform>().SetParent(parent, false);
-        var le = go.AddComponent<LayoutElement>();
-        le.minHeight = 70f; le.preferredHeight = 70f;
-        _debug = go.GetComponent<TextMeshProUGUI>();
-        _debug.fontSize = 14f;
-        _debug.color = new Color(0.15f, 0.4f, 0.15f, 1f); // dark green, readable on light
-        _debug.alignment = TextAlignmentOptions.TopLeft;
+        // Coherence bar (replaces the old debug line): a full-width bar showing THIS bot's coherence.
+        var barGo = new GameObject("CoherenceBar", typeof(RectTransform), typeof(Image));
+        barGo.GetComponent<RectTransform>().SetParent(parent, false);
+        barGo.GetComponent<Image>().color = new Color(0.2f, 0.2f, 0.24f);   // track (background)
+        var le = barGo.AddComponent<LayoutElement>();
+        le.minHeight = 18f; le.preferredHeight = 18f;
+
+        var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+        var fillRt = fillGo.GetComponent<RectTransform>();
+        fillRt.SetParent(barGo.transform, false);
+        fillRt.anchorMin = new Vector2(0, 0); fillRt.anchorMax = new Vector2(1, 1);
+        fillRt.pivot = new Vector2(0, 0.5f);
+        fillRt.offsetMin = Vector2.zero; fillRt.offsetMax = Vector2.zero;
+        _coherenceFill = fillGo.GetComponent<Image>();
+        _coherenceFill.color = new Color(0.3f, 0.7f, 0.4f);
+
+        var lblGo = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        var lblRt = lblGo.GetComponent<RectTransform>();
+        lblRt.SetParent(barGo.transform, false);
+        lblRt.anchorMin = Vector2.zero; lblRt.anchorMax = Vector2.one;
+        lblRt.offsetMin = Vector2.zero; lblRt.offsetMax = Vector2.zero;
+        _coherenceLabel = lblGo.GetComponent<TextMeshProUGUI>();
+        _coherenceLabel.fontSize = 11f; _coherenceLabel.color = Color.white;
+        _coherenceLabel.alignment = TextAlignmentOptions.Center;
+        _coherenceLabel.text = "COHERENCE";
+
+        // Register this bot with the coherence system and refresh the bar when it changes.
+        Coherence.RegisterBot(BotId);
+        Coherence.Changed += RefreshCoherenceBar;
+        RefreshCoherenceBar();
+    }
+
+    private void RefreshCoherenceBar()
+    {
+        if (_coherenceFill == null) return;
+        float v = Coherence.ForBot(BotId) / Coherence.Max;   // 0..1
+        _coherenceFill.rectTransform.anchorMax = new Vector2(v, 1f);
+        // colour shifts green -> amber -> red as it falls
+        Color c = v > 0.5f ? Color.Lerp(new Color(0.8f, 0.7f, 0.2f), new Color(0.3f, 0.7f, 0.4f), (v - 0.5f) * 2f)
+                           : Color.Lerp(new Color(0.8f, 0.2f, 0.2f), new Color(0.8f, 0.7f, 0.2f), v * 2f);
+        _coherenceFill.color = c;
+        if (_coherenceLabel != null) _coherenceLabel.text = $"COHERENCE  {Mathf.RoundToInt(v * 100)}%";
     }
 
     private void BuildInputRow(RectTransform parent)
@@ -287,6 +321,7 @@ public class ChatController
         if (string.IsNullOrEmpty(userText)) return;
 
         MarkInteractionNow();   // talking to the bot resets its ignore timer (Sanity Event 2)
+        Coherence.RecoverBot(BotId, 12f);   // and recovers its coherence quickly (up to the group level)
 
         _input.text = "";
         SetBusy(true);
@@ -314,7 +349,10 @@ public class ChatController
             Append($"<b>{_sheet.Name}:</b> {result.Reply}");
             SoundManager.MessageReceive();
 
-            RefreshDebug(score, turn);
+            // Feed the Director's judgement into coherence: a hostile/off-topic/contradictory
+            // message erodes THIS bot's coherence (you're failing to keep it level).
+            if (turn.totalLoss > 0f) Coherence.DrainBot(BotId, turn.totalLoss);
+            RefreshCoherenceBar();
         }
         catch (System.Exception e)
         {
