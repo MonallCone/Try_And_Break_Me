@@ -242,6 +242,14 @@ public class StoryDirector : MonoBehaviour
         // Remember the first bot created \u2014 it's the one that spams in Sanity Event 1.
         if (appLauncher != null) appLauncher.NoteFirstBot(sheet.Id);
 
+        // Creating the SECOND bot steps coherence down one notch and re-levels both bots \u2014 framed
+        // as the new assistant "settling" the first (the CEO's stated reason for building it).
+        if (GameState.I != null && GameState.I.botsCreated == 2 && !GameState.I.HasFlag("coh_second_bot"))
+        {
+            GameState.I.SetFlag("coh_second_bot");
+            Coherence.Event();
+        }
+
         // If tasks were locked awaiting the 3rd bot, unlock now that one's been made.
         if (GameState.I != null && GameState.I.HasFlag("tasks_locked") && GameState.I.botsCreated >= 3)
         {
@@ -718,9 +726,9 @@ public class StoryDirector : MonoBehaviour
     {
         var tasks = new System.Collections.Generic.List<WorkTask>
         {
+            new WorkTask("d1_hr",    "Approve or reject this week's holiday requests", TaskType.HRSwipe, "lauren"),
             new WorkTask("d1_cyber", "Contain the malware outbreak on the network", TaskType.CyberShooter, "stuart"),
             new WorkTask("d1_help",  "Help desk: reset Steven's forgotten password", TaskType.HelpDeskMaze, "alex"),
-            new WorkTask("d1_hr",    "Approve or reject this week's holiday requests", TaskType.HRSwipe, "lauren"),
         };
         WorkDay.StartDay(1, tasks);
         Debug.Log("[Story] beat 6: Day 1 work started (3 tasks).");
@@ -851,7 +859,6 @@ public class StoryDirector : MonoBehaviour
             yield return new WaitForSeconds(gap);
         }
 
-        Coherence.Event();
  
         if (GameState.I) GameState.I.SetFlag("beat7_lonely_spam");
         Debug.Log("[Story] beat 7: lonely spam delivered.");
