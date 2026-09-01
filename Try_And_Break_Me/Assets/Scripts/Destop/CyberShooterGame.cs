@@ -4,10 +4,6 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-// Cyber-security minigame: "Defend the Core." A green core sits in the centre; malware threats
-// spawn at the edges from ALL directions and drift inward toward the core, speeding up over time.
-// CLICK a threat to destroy it. If one reaches the core it's a breach: the window shakes and the
-// core flashes/takes damage. Score = % of threats stopped. Always completes when the wave resolves.
 public class CyberShooterGame : MonoBehaviour
 {
     private WorkTask _task;
@@ -104,8 +100,6 @@ public class CyberShooterGame : MonoBehaviour
         UpdateHud();
     }
 
-    // Bot help (hard-coded to specific Day 2 tasks): Stuart periodically destroys a threat for you,
-    // as if he's picking some off himself. Played straight; the intro line carries the unease.
     private float _helpTimer;
     private bool _helpAnnounced;
     private void HandleBotHelp()
@@ -135,7 +129,7 @@ public class CyberShooterGame : MonoBehaviour
         _helper.anchorMin = _helper.anchorMax = new Vector2(0.5f, 0.5f);
         _helper.pivot = new Vector2(0.5f, 0.5f);
         _helper.sizeDelta = new Vector2(36f, 36f);
-        _helper.anchoredPosition = new Vector2(0, _coreRadius + 40f);   // start near the core
+        _helper.anchoredPosition = new Vector2(0, _coreRadius + 40f);
 
         Sprite icon = AppLauncher.I != null ? AppLauncher.I.IconForBot("stuart") : null;
         if (icon != null)
@@ -144,7 +138,6 @@ public class CyberShooterGame : MonoBehaviour
         }
         else
         {
-            // fallback: blue circle with an "S"
             img.color = new Color(0.3f, 0.55f, 0.9f);
             img.sprite = CircleSprite();
             var lblGo = new GameObject("S", typeof(RectTransform), typeof(TextMeshProUGUI));
@@ -157,12 +150,15 @@ public class CyberShooterGame : MonoBehaviour
         }
     }
 
+    private float _helperCooldown;
+
     private void MoveHelper()
     {
         if (_helper == null) return;
 
-        // Pick a target: the threat closest to the core, if any.
-        if (_helperTarget == null || !_threats.Contains(_helperTarget))
+        _helperCooldown -= Time.deltaTime;
+
+        if (_helperCooldown <= 0f && (_helperTarget == null || !_threats.Contains(_helperTarget)))
         {
             _helperTarget = null;
             float best = float.MaxValue;
@@ -172,21 +168,20 @@ public class CyberShooterGame : MonoBehaviour
                 if (d < best) { best = d; _helperTarget = t; }
             }
         }
+        if (_helperTarget != null && !_threats.Contains(_helperTarget)) _helperTarget = null;
 
         if (_helperTarget == null)
         {
-            // idle: orbit the core slowly
-            float ang = Time.time * 1.2f;
+            float ang = Time.time * 1.0f;
             _helper.anchoredPosition = new Vector2(Mathf.Cos(ang), Mathf.Sin(ang)) * (_coreRadius + 40f);
             return;
         }
 
-        // chase the target and destroy it on contact
         Vector2 pos = _helper.anchoredPosition;
         Vector2 tgt = _helperTarget.rt.anchoredPosition;
         Vector2 dir = (tgt - pos);
         float dist = dir.magnitude;
-        float speed = 320f;
+        float speed = 150f;
         _helper.anchoredPosition = pos + dir.normalized * Mathf.Min(speed * Time.deltaTime, dist);
 
         if (dist < 22f)
@@ -195,6 +190,7 @@ public class CyberShooterGame : MonoBehaviour
             _threats.Remove(_helperTarget);
             Destroy(_helperTarget.rt.gameObject);
             _helperTarget = null;
+            _helperCooldown = 2.2f;
         }
     }
 
@@ -221,14 +217,12 @@ public class CyberShooterGame : MonoBehaviour
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.sizeDelta = new Vector2(_threatRadius * 2f, _threatRadius * 2f);
 
-        // Spawn at a random angle on an ellipse just outside the field edge.
         float ang = Random.Range(0f, Mathf.PI * 2f);
         float rx = _fieldW * 0.5f - 10f, ry = _fieldH * 0.5f - 10f;
         Vector2 pos = new Vector2(Mathf.Cos(ang) * rx, Mathf.Sin(ang) * ry);
         rt.anchoredPosition = pos;
 
         var threat = new Threat { rt = rt, vel = Vector2.zero };
-        // Click to destroy this threat.
         go.GetComponent<Button>().onClick.AddListener(() => DestroyThreat(threat));
         _threats.Add(threat);
         _spawned++;
@@ -245,7 +239,6 @@ public class CyberShooterGame : MonoBehaviour
             float dist = toCore.magnitude;
             if (dist <= _coreRadius + _threatRadius)
             {
-                // reached the core -> breach
                 _breached++;
                 _coreHits++;
                 Destroy(t.rt.gameObject);
@@ -259,7 +252,6 @@ public class CyberShooterGame : MonoBehaviour
         }
     }
 
-    // Fallback click handling: also allow clicking near a threat (Button covers exact hits).
     private void HandleClicks() { /* Button per-threat handles clicks */ }
 
     private void DestroyThreat(Threat t)
@@ -330,7 +322,6 @@ public class CyberShooterGame : MonoBehaviour
     }
 
     // ---- helpers ----
-    // A runtime circle sprite so core/threats render round, not square.
     private static Sprite _circle;
     private static Sprite CircleSprite()
     {
