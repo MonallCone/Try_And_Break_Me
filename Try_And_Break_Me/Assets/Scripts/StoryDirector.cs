@@ -616,7 +616,8 @@ public class StoryDirector : MonoBehaviour
             {
                 if (chat == null || chat.BotId == dyingBotId) continue;   // skip the one being deleted
                 string[] pool = survivorsPlead ? plead : (Random.value < 0.5f ? rage : scream);
-                chat.InjectBotLine(pool[Random.Range(0, pool.Length)], ominous: true);
+                string raw = pool[Random.Range(0, pool.Length)];
+                chat.InjectBotLine(ChatController.GlitchText(raw, 0.85f, true), ominous: true);
             }
             yield return new WaitForSeconds(Random.Range(1.2f, 2.2f));
         }

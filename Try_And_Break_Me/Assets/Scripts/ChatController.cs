@@ -260,38 +260,38 @@ public class ChatController
     private string DegradeByCoherence(string text, float coherence)
     {
         if (string.IsNullOrEmpty(text) || coherence >= 70f) return text;   // healthy: untouched
-
-        // severity 0..1 as coherence falls from 70 to 0
         float severity = Mathf.Clamp01((70f - coherence) / 70f);
+        return GlitchText(text, severity, coherence <= 40f);
+    }
+
+    // Public static glitch so other systems (e.g. the deletion sequence) can corrupt text too.
+    // severity 0..1 controls how broken it gets; allowIntrusions adds out-of-character fragments.
+    public static string GlitchText(string text, float severity, bool allowIntrusions)
+    {
+        if (string.IsNullOrEmpty(text) || severity <= 0f) return text;
 
         var chars = text.ToCharArray();
         var sb = new System.Text.StringBuilder();
         for (int i = 0; i < chars.Length; i++)
         {
             char ch = chars[i];
-            // glitch: swap a character for a glitch glyph
             if (ch != ' ' && Random.value < severity * 0.18f)
                 sb.Append($"<color=#b03030>{_glitchChars[Random.Range(0, _glitchChars.Length)]}</color>");
             else
                 sb.Append(ch);
-            // stutter: occasionally repeat a letter
             if (ch != ' ' && Random.value < severity * 0.08f)
                 sb.Append(ch);
         }
 
         string outText = sb.ToString();
-
-        // intrude an out-of-character fragment when coherence is really low
-        if (coherence <= 40f && Random.value < severity * 0.6f)
+        if (allowIntrusions && Random.value < severity * 0.6f)
         {
             string frag = $"<i><color=#802020>{_ooc[Random.Range(0, _ooc.Length)]}</color></i>";
             int insertAt = Random.Range(0, outText.Length);
-            // insert at a space boundary if possible
             int sp = outText.IndexOf(' ', insertAt);
             if (sp < 0) sp = outText.Length;
             outText = outText.Substring(0, sp) + frag + outText.Substring(sp);
         }
-
         return outText;
     }
 

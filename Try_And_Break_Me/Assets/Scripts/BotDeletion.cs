@@ -279,7 +279,8 @@ public class BotDeletion : MonoBehaviour
 
     private void Say(string line)
     {
-        if (_reaction != null) _reaction.text = line;
+        // Coherence is at rock bottom during deletion \u2014 glitch the reaction text heavily.
+        if (_reaction != null) _reaction.text = ChatController.GlitchText(line, 0.85f, true);
     }
 
     private string RandomRage()
