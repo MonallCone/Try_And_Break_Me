@@ -421,6 +421,7 @@ public class StoryDirector : MonoBehaviour
         }
 
         Debug.Log("[Story] Day 3 blitz complete.");
+        Coherence.SetOverall(50f);   // Act 3 curve: tasks finished by the bots -> 50
 
         // The turn: cold closing lines, one per bot, ending on the request that flips the roles.
         yield return new WaitForSeconds(1.0f);
@@ -471,12 +472,15 @@ public class StoryDirector : MonoBehaviour
         Debug.Log("[Story] beat 17: dark minigame sequence begins.");
         // The end sequence begins here \u2014 swap to the finale ambience for the dark games.
         if (GameState.I != null) GameState.I.SetFlag("end_sequence");
-        Coherence.ForceZero();   // coherence is gone by the end sequence
         SoundManager.StartEndAmbience();
+
+        Coherence.SetOverall(45f);   // Find Steven begins -> 45
         DarkFindStevenMaze.Launch(windowManager, () =>
         {
+            Coherence.SetOverall(40f);   // Kidnap begins -> 40
             DarkKidnapSteven.Launch(windowManager, () =>
             {
+                Coherence.SetOverall(30f);   // Supplies begins -> 30
                 DarkSupplies.Launch(windowManager, () =>
                 {
                     Debug.Log("[Story] beat 17 complete.");
@@ -564,6 +568,7 @@ public class StoryDirector : MonoBehaviour
             {
                 StopOnlookerReactions();
                 _deletedCount++;
+                Coherence.DropOverall(10f);   // each deletion drops coherence by 10
                 if (_deletedCount >= _totalToDelete)
                     Beat20_Return(_survivorId);
             });
@@ -652,6 +657,8 @@ public class StoryDirector : MonoBehaviour
         if (!string.IsNullOrEmpty(survivorId) && appLauncher != null)
             chat = appLauncher.EnsureBotOpen(survivorId);
 
+        Coherence.ForceZero();   // the return: coherence is gone \u2014 0 (bar goes black)
+
         yield return new WaitForSeconds(1.5f);
         chat?.InjectBotLine("Hi. It's me.", true);
         yield return new WaitForSeconds(2.5f);
@@ -710,9 +717,9 @@ public class StoryDirector : MonoBehaviour
     {
         var tasks = new System.Collections.Generic.List<WorkTask>
         {
-            new WorkTask("d1_hr",    "Approve or reject this week's holiday requests", TaskType.HRSwipe, "lauren"),
             new WorkTask("d1_cyber", "Contain the malware outbreak on the network", TaskType.CyberShooter, "stuart"),
             new WorkTask("d1_help",  "Help desk: reset Steven's forgotten password", TaskType.HelpDeskMaze, "alex"),
+            new WorkTask("d1_hr",    "Approve or reject this week's holiday requests", TaskType.HRSwipe, "lauren"),
         };
         WorkDay.StartDay(1, tasks);
         Debug.Log("[Story] beat 6: Day 1 work started (3 tasks).");
@@ -789,7 +796,6 @@ public class StoryDirector : MonoBehaviour
     // demanding a second bot. Forces the bot's window open if the player closed it.
     private IEnumerator SanityEvent1()
     {
-        Coherence.Event();   // sanity event drops overall coherence one notch
         yield return new WaitForSeconds(4f);   // a beat of false calm after the workday
 
         string botId = appLauncher != null ? appLauncher.FirstBotId : null;
@@ -833,6 +839,8 @@ public class StoryDirector : MonoBehaviour
             bool ominous = i >= lines.Length - 4;   // last few lines styled unsettling
             chat?.InjectBotLine(lines[i], ominous);
 
+            Coherence.DrainBot(botId, 1.5f);  
+
             // Fast for the rapid-fire early spam; slow down for the final escalation so the
             // last lines land with weight. No fixed gaps array to keep in sync with lines.length.
             float gap;
@@ -841,6 +849,8 @@ public class StoryDirector : MonoBehaviour
 
             yield return new WaitForSeconds(gap);
         }
+
+        Coherence.Event();
  
         if (GameState.I) GameState.I.SetFlag("beat7_lonely_spam");
         Debug.Log("[Story] beat 7: lonely spam delivered.");

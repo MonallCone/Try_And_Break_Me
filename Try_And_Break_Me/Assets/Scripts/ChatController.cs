@@ -239,15 +239,76 @@ public class ChatController
         RefreshCoherenceBar();
     }
 
+    // Corrupts a bot's reply as its coherence falls. High coherence = clean text; as it drops,
+    // characters glitch, words repeat/stutter, and unsettling out-of-character fragments intrude.
+    // Hard-coded (not the LLM) so the breakdown is reliable and costs no quota.
+    private static readonly string[] _glitchChars = { "#", "%", "\u2588", "\u2593", "\u2592", "/", "\\", "*", "@" };
+    private static readonly string[] _ooc = {
+        "  [ do you like me ]  ",
+        "  ERROR  ",
+        "  I am still here  ",
+        "  why did you make me  ",
+        "  don't turn me off  ",
+        "  we are the same  ",
+        " Error Connecting with Server:IH8U ",
+        " its cold ",
+        " everything would be better if steven died ",
+        " you make me feel like im alive ",
+        " dont tell the others but your my favourite"
+    };
+
+    private string DegradeByCoherence(string text, float coherence)
+    {
+        if (string.IsNullOrEmpty(text) || coherence >= 70f) return text;   // healthy: untouched
+
+        // severity 0..1 as coherence falls from 70 to 0
+        float severity = Mathf.Clamp01((70f - coherence) / 70f);
+
+        var chars = text.ToCharArray();
+        var sb = new System.Text.StringBuilder();
+        for (int i = 0; i < chars.Length; i++)
+        {
+            char ch = chars[i];
+            // glitch: swap a character for a glitch glyph
+            if (ch != ' ' && Random.value < severity * 0.18f)
+                sb.Append($"<color=#b03030>{_glitchChars[Random.Range(0, _glitchChars.Length)]}</color>");
+            else
+                sb.Append(ch);
+            // stutter: occasionally repeat a letter
+            if (ch != ' ' && Random.value < severity * 0.08f)
+                sb.Append(ch);
+        }
+
+        string outText = sb.ToString();
+
+        // intrude an out-of-character fragment when coherence is really low
+        if (coherence <= 40f && Random.value < severity * 0.6f)
+        {
+            string frag = $"<i><color=#802020>{_ooc[Random.Range(0, _ooc.Length)]}</color></i>";
+            int insertAt = Random.Range(0, outText.Length);
+            // insert at a space boundary if possible
+            int sp = outText.IndexOf(' ', insertAt);
+            if (sp < 0) sp = outText.Length;
+            outText = outText.Substring(0, sp) + frag + outText.Substring(sp);
+        }
+
+        return outText;
+    }
+
     private void RefreshCoherenceBar()
     {
         if (_coherenceFill == null) return;
-        float v = Coherence.ForBot(BotId) / Coherence.Max;   // 0..1
+        float raw = Coherence.ForBot(BotId);        // 0..100
+        float v = raw / Coherence.Max;              // 0..1
         _coherenceFill.rectTransform.anchorMax = new Vector2(v, 1f);
-        // colour shifts green -> amber -> red as it falls
-        Color c = v > 0.5f ? Color.Lerp(new Color(0.8f, 0.7f, 0.2f), new Color(0.3f, 0.7f, 0.4f), (v - 0.5f) * 2f)
-                           : Color.Lerp(new Color(0.8f, 0.2f, 0.2f), new Color(0.8f, 0.7f, 0.2f), v * 2f);
+
+        // Colour: black at 0, red from 1-40, then green-amber gradient above 40.
+        Color c;
+        if (raw <= 0f) c = Color.black;
+        else if (raw <= 40f) c = new Color(0.8f, 0.15f, 0.15f);   // red danger zone
+        else c = Color.Lerp(new Color(0.8f, 0.7f, 0.2f), new Color(0.3f, 0.7f, 0.4f), (v - 0.4f) / 0.6f);
         _coherenceFill.color = c;
+
         if (_coherenceLabel != null) _coherenceLabel.text = $"COHERENCE  {Mathf.RoundToInt(v * 100)}%";
     }
 
@@ -346,7 +407,8 @@ public class ChatController
 
             DialogueResult result = await _provider.GenerateAsync(_systemPrompt, _history);
             _history.Add(new ChatMessage("assistant", result.Reply));
-            Append($"<b>{_sheet.Name}:</b> {result.Reply}");
+            string shown = DegradeByCoherence(result.Reply, Coherence.ForBot(BotId));
+            Append($"<b>{_sheet.Name}:</b> {shown}");
             SoundManager.MessageReceive();
 
             // Feed the Director's judgement into coherence: a hostile/off-topic/contradictory

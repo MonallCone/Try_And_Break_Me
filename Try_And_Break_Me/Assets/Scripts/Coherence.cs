@@ -68,6 +68,21 @@ public static class Coherence
         Changed?.Invoke();
     }
 
+    // Set the overall value to an exact number and sync all bots to it (Act 3 scripted curve).
+    public static void SetOverall(float value)
+    {
+        _overall = Mathf.Clamp(value, 0f, Max);
+        var keys = new List<string>(_perBot.Keys);
+        foreach (var k in keys) _perBot[k] = _overall;
+        Changed?.Invoke();
+    }
+
+    // Drop the overall by an amount and sync all bots (used per-deletion in the finale).
+    public static void DropOverall(float amount)
+    {
+        SetOverall(_overall - amount);
+    }
+
     // Force everything to zero (end sequence).
     public static void ForceZero()
     {

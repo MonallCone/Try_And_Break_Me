@@ -47,10 +47,9 @@ public static class EmailCatalog
                     $"Team,\n\nI'm thrilled to announce our new AI Partner Programme. Each of you will help train " +
                     "an AI assistant to support \u2014 and eventually take over \u2014 your day-to-day tasks. This is a huge " +
                     "step forward for the company and for all of us.\n\nYour training software will install automatically. " +
-                    "Please build your first assistant today.\n\nOnwards and upwards,\nSteven");
-
-            // More story emails get added here as we reach their beats (holiday trap, create-another-bot,
-            // tone-shift emails, DELETE THE BOTS, etc.).
+                    "Please build your first assistant today.\n\nOne rule above all: it is YOUR responsibility to keep your " +
+                    "assistants COHERENT and level at all times. Watch each one's coherence. A stable assistant is a " +
+                    "productive one. Do not let them slip.\n\nOnwards and upwards,\nSteven");
 
             case "hr_trap_ceo":
                 return new EmailData("hr_trap_ceo", "Steven (CEO)",
