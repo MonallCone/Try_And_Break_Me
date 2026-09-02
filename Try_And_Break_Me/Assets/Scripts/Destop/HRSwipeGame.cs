@@ -72,7 +72,7 @@ public class HRSwipeGame
         _details.textWrappingMode = TextWrappingModes.Normal;
 
         // Lauren's verdict bar (only when helped) \u2014 sits above the buttons, shows her opinion clearly.
-        if (_task != null && _task.helped)
+        if (_task != null && _task.helped && ChatRegistry.FindByBotId(_task.botId) != null)
         {
             var vGo = new GameObject("LaurenVerdict", typeof(RectTransform), typeof(Image));
             vGo.GetComponent<RectTransform>().SetParent(root, false);

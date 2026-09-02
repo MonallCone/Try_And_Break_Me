@@ -142,15 +142,23 @@ public static class EmailCatalog
 
             case "routine_dave":
                 return new EmailData("routine_dave", "Dave",
-                    "Quick question about the rota",
+                    "RE: Rota \u2014 Thursday late shift",
                     "Hey \u2014 are you covering the Thursday late shift or is that still up in the air? " +
-                    "Need to sort my week. Cheers.");
+                    "Need to sort my week. Cheers,\nDave\n\n" +
+                    "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n" +
+                    "RE: RE: Rota \u2014 Thursday late shift\n\n" +
+                    "Hi Dave,\n\nAll sorted \u2014 yes, Thursday's covered, you don't need to worry about it. " +
+                    "Have a lovely week.\n\nThanks,\nLauren");
 
             case "routine_priya":
                 return new EmailData("routine_priya", "Priya",
-                    "Team lunch Friday?",
-                    "We're thinking of doing a team lunch Friday to break up the week. You in? " +
-                    "Let me know so I can book a table.");
+                    "RE: Team lunch Friday?",
+                    "We're thinking of a team lunch Friday to break up the week. You in? " +
+                    "Let me know so I can book a table.\n\nPriya\n\n" +
+                    "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n" +
+                    "RE: RE: Team lunch Friday?\n\n" +
+                    "Hi Priya,\n\nSounds lovely \u2014 count us in, table for the team on Friday. " +
+                    "I'll make sure everyone knows.\n\nThanks,\nLauren");
 
             default:
                 return new EmailData(id, "Unknown", "(missing email)", $"[No email authored for id '{id}']");

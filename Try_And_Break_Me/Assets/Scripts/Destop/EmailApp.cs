@@ -140,8 +140,18 @@ public class EmailApp
         _readFrom.text = $"From: {email.from}";
         _readSubject.text = email.subject;
         _readBody.text = email.body;
-        if (email.repliedByLauren)
-            _readBody.text += "\n\n<i><color=#4a7a4a>\u2014\u2014\u2014\nLauren: Don't worry, I already replied to this one for you. You're welcome! \u2665</color></i>";
+
+        if ((email.id == "routine_dave" || email.id == "routine_priya") && GameState.I != null && !GameState.I.HasFlag("lauren_email_line"))
+        {
+            var lauren = ChatRegistry.FindByBotId("lauren");
+            GameState.I.SetFlag("lauren_email_line");
+            if (lauren != null)
+            {
+                lauren.InjectBotLine("Don't worry, I've already dealt with your morning emails.");
+                lauren.RememberAction("When you opened the emails I answered, I mentioned I'd already dealt with your morning emails for you.");
+            }
+        }
+
         email.onOpen?.Invoke();
     }
 

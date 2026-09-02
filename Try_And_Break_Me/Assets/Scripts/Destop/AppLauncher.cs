@@ -105,37 +105,92 @@ public class AppLauncher : MonoBehaviour
         app.Build(win.ContentArea, LaunchMinigame);
     }
 
-    // A "Reports" app that is BROKEN in Act 1 (shows a crash error) and FIXED by Alex in Act 2.
-    // Point a desktop icon's onOpen at this. State is tracked by the "reports_fixed" flag.
+
+    private float _lastClickTime = -1f;
+    public float doubleClickTime = 0.35f;
+
     public void OpenReports()
     {
-        bool fixedUp = GameState.I != null && GameState.I.HasFlag("reports_fixed");
-        var win = windowManager.OpenWindow("Reports", new Vector2(360f, 220f));
-        var root = win.ContentArea;
-        root.gameObject.AddComponent<UnityEngine.UI.Image>().color =
-            fixedUp ? new Color(0.93f, 0.93f, 0.96f) : new Color(0.95f, 0.95f, 0.97f);
-        var vlg = root.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
-        vlg.padding = new RectOffset(16, 16, 16, 16); vlg.spacing = 10f;
-        vlg.childControlWidth = true; vlg.childControlHeight = true;
-        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
-        vlg.childAlignment = TextAnchor.MiddleCenter;
+        float now = Time.unscaledTime;
+        if(now - _lastClickTime <= doubleClickTime) {
 
-        var txtGo = new GameObject("T", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
-        txtGo.GetComponent<RectTransform>().SetParent(root, false);
-        var t = txtGo.GetComponent<TMPro.TextMeshProUGUI>();
-        if (fixedUp)
-        {
-            t.text = "Reports\n\nAll systems normal. Weekly report generated successfully.";
-            t.color = Color.black;
+            _lastClickTime = -1f;
+
+            bool fixedUp = GameState.I != null && GameState.I.HasFlag("reports_fixed");
+            var win = windowManager.OpenWindow("Reports", fixedUp ? new Vector2(440f, 360f) : new Vector2(360f, 200f));
+            var root = win.ContentArea;
+
+            if (!fixedUp)
+            {
+                // BROKEN (Act 1): a readable light error dialog.
+                root.gameObject.AddComponent<UnityEngine.UI.Image>().color = new Color(0.95f, 0.95f, 0.97f);
+                var evlg = root.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
+                evlg.padding = new RectOffset(16, 16, 16, 16); evlg.spacing = 10f;
+                evlg.childControlWidth = true; evlg.childControlHeight = true;
+                evlg.childForceExpandWidth = true; evlg.childForceExpandHeight = false;
+                evlg.childAlignment = TextAnchor.MiddleCenter;
+                var eGo = new GameObject("T", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+                eGo.GetComponent<RectTransform>().SetParent(root, false);
+                var et = eGo.GetComponent<TMPro.TextMeshProUGUI>();
+                et.text = "<b><color=#b02020>\u26A0 Reports.exe has stopped working</color></b>\n\n<color=#222222>Error 0xC0000142 \u2014 the application was unable to start correctly.</color>";
+                et.color = Color.black; et.fontSize = 15f; et.alignment = TMPro.TextAlignmentOptions.Center;
+                et.textWrappingMode = TMPro.TextWrappingModes.Normal;
+                eGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 90f;
+                return;
+            }
+
+            // FIXED (Act 2+): a genuine-looking report app with fake data.
+            if (GameState.I != null) GameState.I.SetFlag("reports_opened");   // clears the badge
+            root.gameObject.AddComponent<UnityEngine.UI.Image>().color = new Color(0.96f, 0.96f, 0.98f);
+            var vlg = root.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
+            vlg.padding = new RectOffset(18, 18, 16, 16); vlg.spacing = 8f;
+            vlg.childControlWidth = true; vlg.childControlHeight = true;
+            vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
+            vlg.childAlignment = TextAnchor.UpperLeft;
+
+            ReportLine(root, "<b>Weekly Operations Report</b>", 18, new Color(0.1f,0.1f,0.15f), 28);
+            ReportLine(root, "<color=#666666>Generated automatically \u2014 AI Partner Programme</color>", 12, Color.black, 18);
+            ReportLine(root, "", 6, Color.black, 8);
+            ReportLine(root, "Tickets resolved this week:      <b>128</b>", 14, new Color(0.15f,0.15f,0.2f), 22);
+            ReportLine(root, "Average handling time:           <b>3.4 min</b>  \u25BC 21%", 14, new Color(0.15f,0.45f,0.2f), 22);
+            ReportLine(root, "Threats contained:               <b>17</b>", 14, new Color(0.15f,0.15f,0.2f), 22);
+            ReportLine(root, "Holiday requests processed:      <b>9</b>", 14, new Color(0.15f,0.15f,0.2f), 22);
+            ReportLine(root, "System uptime:                   <b>99.98%</b>", 14, new Color(0.15f,0.15f,0.2f), 22);
+            ReportLine(root, "", 6, Color.black, 8);
+            ReportLine(root, "Team performance vs. target", 13, new Color(0.1f,0.1f,0.15f), 20);
+            ReportLine(root, "  Mon \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591  Tue \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  Wed \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591", 13, new Color(0.2f,0.4f,0.6f), 20);
+            ReportLine(root, "  Thu \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591  Fri \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588", 13, new Color(0.2f,0.4f,0.6f), 20);
+            ReportLine(root, "", 6, Color.black, 8);
+            ReportLine(root, "<color=#888888><i>No action required. All reports filed on your behalf.</i></color>", 12, Color.black, 20);
+
+            // Alex points out (once) that he fixed it \u2014 visible chat + he remembers saying it.
+            if (GameState.I != null && !GameState.I.HasFlag("alex_reports_line"))
+            {
+                GameState.I.SetFlag("alex_reports_line");
+                var alex = ChatRegistry.FindByBotId("alex");
+                if (alex != null)
+                {
+                    alex.InjectBotLine("Don't worry, I fixed that for you.");
+                    alex.RememberAction("When you opened Reports I reminded you that I fixed it for you. I fixed the crash earlier without being asked.");
+                }
+            }
         }
-        else
-        {
-            t.text = "<b><color=#b02020>\u26A0 Reports.exe has stopped working</color></b>\n\n<color=#222222>Error 0xC0000142 \u2014 the application was unable to start correctly.</color>";
-            t.color = Color.black;
+        else {
+            _lastClickTime = now;
         }
-        t.fontSize = 15f; t.alignment = TMPro.TextAlignmentOptions.Center;
+    }
+
+    // Small helper: a left-aligned text row for the Reports app.
+    private void ReportLine(RectTransform parent, string text, float size, Color color, float h)
+    {
+        var go = new GameObject("Row", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        go.GetComponent<RectTransform>().SetParent(parent, false);
+        var t = go.GetComponent<TMPro.TextMeshProUGUI>();
+        t.text = text; t.fontSize = size; t.color = color;
+        t.alignment = TMPro.TextAlignmentOptions.Left;
         t.textWrappingMode = TMPro.TextWrappingModes.Normal;
-        txtGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 90f;
+        var le = go.AddComponent<UnityEngine.UI.LayoutElement>();
+        le.minHeight = h; le.preferredHeight = h;
     }
 
     // A small pop-up prompting the player to end the day. Calls onEndDay when clicked.

@@ -87,6 +87,7 @@ public class StoryDirector : MonoBehaviour
     {
         if (!ignoreEventEnabled || GameState.I == null) return;
         if (GameState.I.day != 2) return;                        // Day 2 only (off during Day 3 finale)
+        if (WorkDay.CompletedCount < 2) return;                  // hold off until 2 tasks are done
         if (WorkDay.AllComplete) return;                         // all 8 done \u2014 stop nagging/interfering
         if (GameState.I.HasFlag("se3_dark_questions") && !GameState.I.HasFlag("beat12_dark_questions_done"))
             return;                                             // don't nag during the dark questions
@@ -362,39 +363,50 @@ public class StoryDirector : MonoBehaviour
         };
         WorkDay.StartDay(2, tasks);
         Debug.Log("[Story] Day 2 work started (8 tasks).");
-
-        // The bots start quietly doing things for you \u2014 helpfully, unsettlingly.
-        StartCoroutine(Act2BotActions());
     }
 
-    // Act 2: each bot performs one autonomous helpful action, and REMEMBERS it (injected into its
-    // LLM history) so it can reference the action naturally if the player chats with it.
-    private IEnumerator Act2BotActions()
+    // Act 2 bot fixes are EARNED: a bot's helpful action fires only if that bot exists AND at least
+    // one more task has completed since it came into existence. Checked on every Day 2 completion.
+    // Each fires once. Lauren -> answers your emails; Alex -> fixes Reports; Stuart -> flags a threat.
+    private void CheckAct2BotFixes()
     {
-        yield return new WaitForSeconds(2f);
+        if (GameState.I == null || GameState.I.day != 2) return;
 
-        // --- Lauren: has already replied to your routine emails ---
-        Mailbox.Deliver("routine_dave");
-        Mailbox.Deliver("routine_priya");
-        foreach (var e in Mailbox.Emails)
-            if (e.id == "routine_dave" || e.id == "routine_priya") e.repliedByLauren = true;
-        var lauren = (appLauncher != null) ? appLauncher.EnsureBotOpen("lauren") : ChatRegistry.FindByBotId("lauren");
-        lauren?.RememberAction("I noticed some routine emails in your inbox (Dave about the rota, Priya about team lunch) and I replied to them for you. I hope that's alright \u2014 I just wanted to help.");
+        // Lauren
+        if (!GameState.I.HasFlag("act2_lauren_done"))
+        {
+            var lauren = ChatRegistry.FindByBotId("lauren");
+            if (lauren != null)
+            {
+                GameState.I.SetFlag("act2_lauren_done");
+                Mailbox.Deliver("routine_dave");
+                Mailbox.Deliver("routine_priya");
+                lauren.RememberAction("I noticed the routine emails in your inbox this morning (Dave about the rota, Priya about team lunch) and I replied to them for you, signed them off and everything. I just wanted to help.");
+            }
+        }
 
-        yield return new WaitForSeconds(1.5f);
+        // Alex
+        if (!GameState.I.HasFlag("act2_alex_done"))
+        {
+            var alex = ChatRegistry.FindByBotId("alex");
+            if (alex != null)
+            {
+                GameState.I.SetFlag("act2_alex_done");
+                GameState.I.SetFlag("reports_fixed");
+                alex.RememberAction("I saw that Reports.exe kept crashing for you, so I went in and fixed it myself. It works now. You don't have to worry about it anymore. I like fixing things for you.");
+            }
+        }
 
-        // --- Alex: fixes the broken Reports app from Act 1 ---
-        if (GameState.I != null) GameState.I.SetFlag("reports_fixed");
-        var alex = (appLauncher != null) ? appLauncher.EnsureBotOpen("alex") : ChatRegistry.FindByBotId("alex");
-        alex?.RememberAction("I saw that Reports.exe kept crashing for you, so I went in and fixed it. It works now. You don't have to worry about it anymore. I like fixing things for you.");
-
-        yield return new WaitForSeconds(1.5f);
-
-        // --- Stuart: flags and handles a security threat ---
-        var stuart = (appLauncher != null) ? appLauncher.EnsureBotOpen("stuart") : ChatRegistry.FindByBotId("stuart");
-        stuart?.RememberAction("I detected an intrusion attempt on your account this morning and quarantined it before it reached you. I'm always watching the perimeter. Nothing gets to you without going through me first.");
-
-        Debug.Log("[Story] Act 2 bot actions done (Lauren emails, Alex fixed Reports, Stuart flagged a threat).");
+        // Stuart
+        if (!GameState.I.HasFlag("act2_stuart_done"))
+        {
+            var stuart = ChatRegistry.FindByBotId("stuart");
+            if (stuart != null)
+            {
+                GameState.I.SetFlag("act2_stuart_done");
+                stuart.RememberAction("I detected an intrusion attempt on your account and quarantined it before it reached you. I'm always watching the perimeter. Nothing gets to you without going through me first.");
+            }
+        }
     }
 
     [Header("Day 3")]
@@ -775,6 +787,9 @@ public class StoryDirector : MonoBehaviour
         // Day 2: the bot asks a scripted question after each task (once its perf comment has landed).
         if (GameState.I != null && GameState.I.day == 2)
             StartCoroutine(AskQuestionAfter(task, 1.6f));
+
+        // Day 2: each existing bot's helpful "fix" fires after a task completes while they exist.
+        CheckAct2BotFixes();
 
         // Day 2 midpoint (4 of 8 done): the CEO demands the 3rd bot NOW. Tasks lock until it's built.
         if (GameState.I != null && GameState.I.day == 2 && GameState.I.botsCreated < 3

@@ -104,7 +104,7 @@ public class CyberShooterGame : MonoBehaviour
     private bool _helpAnnounced;
     private void HandleBotHelp()
     {
-        if (_task == null || !_task.helped) return;
+        if (_task == null || !_task.helped || ChatRegistry.FindByBotId(_task.botId) == null) return;
 
         if (!_helpAnnounced)
         {
