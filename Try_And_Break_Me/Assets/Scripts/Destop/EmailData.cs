@@ -11,6 +11,7 @@ public class EmailData
     public string subject;
     public string body;
     public bool unread = true;
+    public bool repliedByLauren = false;   // Act 2: Lauren answered this for you
 
     // Optional: fires when the player opens/reads this email (story hooks later).
     public Action onOpen;
@@ -138,6 +139,19 @@ public static class EmailCatalog
                     "They're not assistants. They're not your friends. They are wearing everyone now." +
                     "Do it now, before everything you are belongs to them.\n\n\u2014 Your old friend C");
  
+
+            case "routine_dave":
+                return new EmailData("routine_dave", "Dave",
+                    "Quick question about the rota",
+                    "Hey \u2014 are you covering the Thursday late shift or is that still up in the air? " +
+                    "Need to sort my week. Cheers.");
+
+            case "routine_priya":
+                return new EmailData("routine_priya", "Priya",
+                    "Team lunch Friday?",
+                    "We're thinking of doing a team lunch Friday to break up the week. You in? " +
+                    "Let me know so I can book a table.");
+
             default:
                 return new EmailData(id, "Unknown", "(missing email)", $"[No email authored for id '{id}']");
         }

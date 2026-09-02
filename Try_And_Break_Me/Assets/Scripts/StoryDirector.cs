@@ -362,6 +362,39 @@ public class StoryDirector : MonoBehaviour
         };
         WorkDay.StartDay(2, tasks);
         Debug.Log("[Story] Day 2 work started (8 tasks).");
+
+        // The bots start quietly doing things for you \u2014 helpfully, unsettlingly.
+        StartCoroutine(Act2BotActions());
+    }
+
+    // Act 2: each bot performs one autonomous helpful action, and REMEMBERS it (injected into its
+    // LLM history) so it can reference the action naturally if the player chats with it.
+    private IEnumerator Act2BotActions()
+    {
+        yield return new WaitForSeconds(2f);
+
+        // --- Lauren: has already replied to your routine emails ---
+        Mailbox.Deliver("routine_dave");
+        Mailbox.Deliver("routine_priya");
+        foreach (var e in Mailbox.Emails)
+            if (e.id == "routine_dave" || e.id == "routine_priya") e.repliedByLauren = true;
+        var lauren = (appLauncher != null) ? appLauncher.EnsureBotOpen("lauren") : ChatRegistry.FindByBotId("lauren");
+        lauren?.RememberAction("I noticed some routine emails in your inbox (Dave about the rota, Priya about team lunch) and I replied to them for you. I hope that's alright \u2014 I just wanted to help.");
+
+        yield return new WaitForSeconds(1.5f);
+
+        // --- Alex: fixes the broken Reports app from Act 1 ---
+        if (GameState.I != null) GameState.I.SetFlag("reports_fixed");
+        var alex = (appLauncher != null) ? appLauncher.EnsureBotOpen("alex") : ChatRegistry.FindByBotId("alex");
+        alex?.RememberAction("I saw that Reports.exe kept crashing for you, so I went in and fixed it. It works now. You don't have to worry about it anymore. I like fixing things for you.");
+
+        yield return new WaitForSeconds(1.5f);
+
+        // --- Stuart: flags and handles a security threat ---
+        var stuart = (appLauncher != null) ? appLauncher.EnsureBotOpen("stuart") : ChatRegistry.FindByBotId("stuart");
+        stuart?.RememberAction("I detected an intrusion attempt on your account this morning and quarantined it before it reached you. I'm always watching the perimeter. Nothing gets to you without going through me first.");
+
+        Debug.Log("[Story] Act 2 bot actions done (Lauren emails, Alex fixed Reports, Stuart flagged a threat).");
     }
 
     [Header("Day 3")]

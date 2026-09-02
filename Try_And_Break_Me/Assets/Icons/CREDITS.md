@@ -12,4 +12,6 @@
 
 <a target="_blank" href="https://icons8.com/icon/21196/manager">Manager</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
 
+<a target="_blank" href="https://icons8.com/icon/mETKjGErm6nY/business-report">Report</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+
 

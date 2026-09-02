@@ -140,6 +140,8 @@ public class EmailApp
         _readFrom.text = $"From: {email.from}";
         _readSubject.text = email.subject;
         _readBody.text = email.body;
+        if (email.repliedByLauren)
+            _readBody.text += "\n\n<i><color=#4a7a4a>\u2014\u2014\u2014\nLauren: Don't worry, I already replied to this one for you. You're welcome! \u2665</color></i>";
         email.onOpen?.Invoke();
     }
 

@@ -69,6 +69,15 @@ public class ChatController
         // LLM memory and doesn't get "explained away" on the next turn.
     }
 
+    // The MIRROR of InjectBotLine: records a note in the bot's LLM history WITHOUT showing a chat
+    // bubble. Used when a bot performs an autonomous helpful action (Act 2) \u2014 so the next time the
+    // player chats, the model KNOWS it did the thing and can reference it naturally.
+    public void RememberAction(string note)
+    {
+        // Stored as an assistant-role memory so the model treats it as something it did/said.
+        _history.Add(new ChatMessage("assistant", note));
+    }
+
     // Build the chat UI inside the given window content area.
     public void Build(RectTransform content)
     {

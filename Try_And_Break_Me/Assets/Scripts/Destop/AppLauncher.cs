@@ -24,7 +24,7 @@ public class AppLauncher : MonoBehaviour
     public Vector2 chatSize = new Vector2(560f, 580f);
 
     [Header("Relay")]
-    public string baseUrl = "https://try-and-break-me-python-service.onrender.com";
+    public string baseUrl = "http://localhost:8000";
 
     [Header("Sanity")]
     public SanityModel sanityTemplate = new SanityModel();
@@ -103,6 +103,39 @@ public class AppLauncher : MonoBehaviour
         var win = windowManager.OpenWindow("Tasks", tasksSize, tasksIcon);
         var app = new TasksApp();
         app.Build(win.ContentArea, LaunchMinigame);
+    }
+
+    // A "Reports" app that is BROKEN in Act 1 (shows a crash error) and FIXED by Alex in Act 2.
+    // Point a desktop icon's onOpen at this. State is tracked by the "reports_fixed" flag.
+    public void OpenReports()
+    {
+        bool fixedUp = GameState.I != null && GameState.I.HasFlag("reports_fixed");
+        var win = windowManager.OpenWindow("Reports", new Vector2(360f, 220f));
+        var root = win.ContentArea;
+        root.gameObject.AddComponent<UnityEngine.UI.Image>().color =
+            fixedUp ? new Color(0.93f, 0.93f, 0.96f) : new Color(0.95f, 0.95f, 0.97f);
+        var vlg = root.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
+        vlg.padding = new RectOffset(16, 16, 16, 16); vlg.spacing = 10f;
+        vlg.childControlWidth = true; vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
+        vlg.childAlignment = TextAnchor.MiddleCenter;
+
+        var txtGo = new GameObject("T", typeof(RectTransform), typeof(TMPro.TextMeshProUGUI));
+        txtGo.GetComponent<RectTransform>().SetParent(root, false);
+        var t = txtGo.GetComponent<TMPro.TextMeshProUGUI>();
+        if (fixedUp)
+        {
+            t.text = "Reports\n\nAll systems normal. Weekly report generated successfully.";
+            t.color = Color.black;
+        }
+        else
+        {
+            t.text = "<b><color=#b02020>\u26A0 Reports.exe has stopped working</color></b>\n\n<color=#222222>Error 0xC0000142 \u2014 the application was unable to start correctly.</color>";
+            t.color = Color.black;
+        }
+        t.fontSize = 15f; t.alignment = TMPro.TextAlignmentOptions.Center;
+        t.textWrappingMode = TMPro.TextWrappingModes.Normal;
+        txtGo.AddComponent<UnityEngine.UI.LayoutElement>().minHeight = 90f;
     }
 
     // A small pop-up prompting the player to end the day. Calls onEndDay when clicked.
