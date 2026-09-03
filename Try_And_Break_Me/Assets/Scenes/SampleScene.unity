@@ -1922,7 +1922,6 @@ MonoBehaviour:
   nagInterval: 8
   interferenceGrace: 12
   ignoreEventEnabled: 1
-  debugSkipEnabled: 1
   day3TaskCount: 60
   day3BlitzInterval: 0.09
   finaleOverlayParent: {fileID: 670818791}
@@ -2873,7 +2872,7 @@ MonoBehaviour:
   botCreated: {fileID: 8300000, guid: 756b4902fe1ec6e4dacfde6988f21c8d, type: 3}
   emailPing: {fileID: 8300000, guid: c022f10fb9f270b40be690e5dea6ffd3, type: 3}
   fogHorn: {fileID: 8300000, guid: a7c4173d353515949af72cb37b5dd482, type: 3}
-  scream: {fileID: 8300000, guid: c75bf13e692c4ac4b9fcf52140aadb68, type: 3}
+  scream: {fileID: 8300000, guid: 473ee2f9016875240bec1a440e487f6b, type: 3}
   typewriter: {fileID: 8300000, guid: 48a22d935eab3424390d050626273725, type: 3}
   cyberHit: {fileID: 8300000, guid: dc9638f94e5efc24e8375de5af1e19e4, type: 3}
   cyberHitDark: {fileID: 8300000, guid: 2fc1fa788cfbc6445ac4bd90c39ca2c2, type: 3}

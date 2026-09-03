@@ -1,12 +1,6 @@
 using System.Collections;
 using UnityEngine;
 
-// The single spine that drives ALL story beats in order (email deliveries, the forced install,
-// day transitions, and later hooking the sanity events). Each beat is a step here; we add beats
-// as we build them so the whole narrative sequence lives in one readable place.
-//
-// Begin() is called once the desktop appears (from BootManager.OnLogin). From there the director
-// runs the sequence, using timers and, later, player-action triggers to advance.
 public class StoryDirector : MonoBehaviour
 {
     public static StoryDirector I { get; private set; }
@@ -47,53 +41,23 @@ public class StoryDirector : MonoBehaviour
     [Tooltip("Set false to disable the ignored-yelling behaviour.")]
     public bool ignoreEventEnabled = true;
 
-    private float _task6Time = -1f;   // Time.time when task 6 was completed (-1 = not yet)
-
-    [Header("Debug")]
-    [Tooltip("If on, press F3 to jump straight to Day 3 (skips Days 1-2). Turn OFF for builds.")]
-    public bool debugSkipEnabled = true;
+    private float _task6Time = -1f;
 
     private void Update()
     {
         TickIgnoreEvent();
-
-        // Debug: F3 jumps to Day 3 for testing the finale without playing through Days 1-2.
-        if (debugSkipEnabled && Input.GetKeyDown(KeyCode.F3))
-            DebugSkipToDay3();
     }
 
-    private void DebugSkipToDay3()
-    {
-        if (GameState.I == null) { Debug.LogWarning("[Debug] No GameState yet."); return; }
-        Debug.Log("[Debug] Skipping to Day 3.");
-
-        // Reopen any bots that were created earlier this run (the finale reads best with all three).
-        // Note: bots must have been created at least once for this to reopen them.
-        if (appLauncher != null)
-            foreach (var id in new[] { "lauren", "stuart", "alex" })
-                appLauncher.EnsureBotOpen(id);
-
-        // Clear mid-day flags that could interfere, mark Act 2 as finished, force day = 3, start it.
-        GameState.I.ClearFlag("tasks_locked");
-        GameState.I.SetFlag("beat12_dark_questions_done");
-        while (GameState.I.day < 3) GameState.I.NextDay();
-        StartWorkDay3();
-    }
-
-    // Sanity Event 2: during the work day, a bot the player hasn't messaged in a while gets
-    // agitated and nags, escalating to yelling. Talking to it resets it. Suppressed while other
-    // scripted sequences are running so it doesn't collide with them.
     private void TickIgnoreEvent()
     {
         if (!ignoreEventEnabled || GameState.I == null) return;
-        if (GameState.I.day != 2) return;                        // Day 2 only (off during Day 3 finale)
-        if (WorkDay.CompletedCount < 2) return;                  // hold off until 2 tasks are done
-        if (WorkDay.AllComplete) return;                         // all 8 done \u2014 stop nagging/interfering
+        if (GameState.I.day != 2) return;                        
+        if (WorkDay.CompletedCount < 2) return;                  
+        if (WorkDay.AllComplete) return;
         if (GameState.I.HasFlag("se3_dark_questions") && !GameState.I.HasFlag("beat12_dark_questions_done"))
-            return;                                             // don't nag during the dark questions
-        if (GameState.I.HasFlag("tasks_locked")) return;        // not during the 3rd-bot lock moment
+            return;                                             
+        if (GameState.I.HasFlag("tasks_locked")) return;       
 
-        // Record when task 6 was completed, so window interference gets a short grace period after.
         if (WorkDay.CompletedCount >= 6 && _task6Time < 0f) _task6Time = Time.time;
 
         foreach (var chat in ChatRegistry.All)
@@ -110,19 +74,14 @@ public class StoryDirector : MonoBehaviour
             _ignoreStage[chat.BotId] = stage + 1;
             _lastNag[chat.BotId] = Time.time;
 
-            // Being ignored erodes THIS bot's coherence (Act 2 neglect). Talking to it recovers.
             Coherence.DrainBot(chat.BotId, 4f);
 
-            // Tasks 7-8 (6+ completed): the bot no longer just yells \u2014 it messes with the screen.
-            // But only after a short grace period following task 6, so it doesn't hit instantly.
             bool graceOver = _task6Time > 0f && (Time.time - _task6Time) >= interferenceGrace;
             if (WorkDay.CompletedCount >= 6 && graceOver)
                 DoInterference();
         }
     }
 
-    // Screen interference for the late-day ignore escalation: either opens an app unprompted or
-    // grabs an open window (including the active minigame) and jerks it to a new position.
     private void DoInterference()
     {
         int action = Random.Range(0, 2);
@@ -172,7 +131,7 @@ public class StoryDirector : MonoBehaviour
 
     private void Start()
     {
-        // The AI Friend icon shouldn't exist yet \u2014 it arrives via the install in beat 4.
+        // The AI Friend icon shouldn't exist yet it arrives via the install in beat 4.
         if (aiFriendIcon != null) aiFriendIcon.SetActive(false);
     }
 
@@ -232,22 +191,36 @@ public class StoryDirector : MonoBehaviour
         Debug.Log("[Story] beat 4: AI Virtual Friend installed \u2014 icon revealed.");
     }
 
-    // Beat 5: called whenever the player finishes creating a bot. For now it just records the
-    // first-bot milestone; beat 7 (end-of-day lonely spam) will build on this.
     public void OnBotCreated(CharacterSheet sheet)
     {
+
+        var stuart = ChatRegistry.FindByBotId("stuart");
+        var lauren = ChatRegistry.FindByBotId("lauren");
+        var alex = ChatRegistry.FindByBotId("alex");
+
         Debug.Log($"[Story] beat 5: bot created \u2014 {sheet.Name} (total {(GameState.I ? GameState.I.botsCreated : 1)}).");
         if (GameState.I && !GameState.I.HasFlag("beat5_first_bot"))
             GameState.I.SetFlag("beat5_first_bot");
 
-        // Remember the first bot created \u2014 it's the one that spams in Sanity Event 1.
+        // Remember the first bot created it's the one that spams in Sanity Event 1.
         if (appLauncher != null) appLauncher.NoteFirstBot(sheet.Id);
 
-        // Creating the SECOND bot steps coherence down one notch and re-levels both bots \u2014 framed
-        // as the new assistant "settling" the first (the CEO's stated reason for building it).
         if (GameState.I != null && GameState.I.botsCreated == 2 && !GameState.I.HasFlag("coh_second_bot"))
         {
             GameState.I.SetFlag("coh_second_bot");
+            var once = false;
+            if(lauren != null && appLauncher.FirstBotId != "lauren" && once == false) {
+                lauren.InjectBotLine("Hi, Its Great to be Here");
+                once = true;
+            }
+            if (alex != null  && appLauncher.FirstBotId != "alex" && once == false) {
+                alex.InjectBotLine("Hi, Its Great to be Here");
+                once = true;
+            }
+            if (stuart != null  && appLauncher.FirstBotId != "stuart" && once == false) {
+                stuart.InjectBotLine("Hi, Its Great to be Here");
+                once = true;
+            }
             Coherence.Event();
         }
 
@@ -256,18 +229,36 @@ public class StoryDirector : MonoBehaviour
         {
             GameState.I.ClearFlag("tasks_locked");
             Debug.Log("[Story] 3rd bot created \u2014 tasks unlocked.");
+            if(lauren != null && appLauncher.FirstBotId != "lauren"){
+                lauren.InjectBotLine("Hi, Its Great to be Here");
+            }
+            if (alex != null  && appLauncher.FirstBotId != "alex") {
+                alex.InjectBotLine("Hi, Its Great to be Here");
+            }
+            if (stuart != null  && appLauncher.FirstBotId != "stuart") {
+                stuart.InjectBotLine("Hi, Its Great to be Here");
+            }
         }
 
         // Beat 6: once the first bot exists, start Day 1's work (3 tickets).
-        if (WorkDay.Tasks.Count == 0)
+        if (WorkDay.Tasks.Count == 0){
             StartWorkDay1();
+            if(lauren != null){
+                lauren.InjectBotLine("Hi, Good Morning");
+            }
+            if (alex != null) {
+                alex.InjectBotLine("Hi, Good Morning");
+            }
+            if (stuart != null) {
+                stuart.InjectBotLine("Hi, Good Morning");
+            }
+        }
+
 
         // Creating the 2nd bot may satisfy the end-of-day gate.
         CheckEndOfDayGate();
     }
 
-    // The End Day prompt appears when the current day's requirements are met.
-    // Day 1 gate: all 3 tasks done AND a 2nd bot created.
     public void CheckEndOfDayGate()
     {
         if (GameState.I == null) return;
@@ -295,8 +286,6 @@ public class StoryDirector : MonoBehaviour
         }
     }
 
-    // Runs the day transition: fade to black, wipe inbox + re-send welcome (joke), advance day,
-    // load next day's tasks, fade back. Company chat and docked bots persist across the fade.
     public void EndDay()
     {
         if (GameState.I == null) return;
@@ -306,11 +295,25 @@ public class StoryDirector : MonoBehaviour
             // Tidy the workspace: close every non-bot window, and re-dock the bots to the right.
             CloseNonBotWindowsAndRedock();
 
-            // Wipe the inbox and cheekily re-send the welcome email.
+            // Wipe the inbox
             Mailbox.Clear();
             Mailbox.Deliver("welcome");
 
             GameState.I.NextDay();
+
+            var stuart = ChatRegistry.FindByBotId("stuart");
+            var lauren = ChatRegistry.FindByBotId("lauren");
+            var alex = ChatRegistry.FindByBotId("alex");
+
+            if(lauren != null){
+                lauren.InjectBotLine("Hi, Good Morning");
+            }
+            if (alex != null) {
+                alex.InjectBotLine("Hi, Good Morning");
+            }
+            if (stuart != null) {
+                stuart.InjectBotLine("Hi, Good Morning");
+            }
 
             // Load the new day's tasks.
             if (GameState.I.day == 2) StartWorkDay2();
@@ -320,7 +323,7 @@ public class StoryDirector : MonoBehaviour
         };
 
         if (DayTransition.I != null) DayTransition.I.Play(mid);
-        else mid();   // fallback if no transition wired
+        else mid();
     }
 
     // Close every open window that isn't a bot chat, then re-dock the bots to the right edge.
@@ -365,9 +368,6 @@ public class StoryDirector : MonoBehaviour
         Debug.Log("[Story] Day 2 work started (8 tasks).");
     }
 
-    // Act 2 bot fixes are EARNED: a bot's helpful action fires only if that bot exists AND at least
-    // one more task has completed since it came into existence. Checked on every Day 2 completion.
-    // Each fires once. Lauren -> answers your emails; Alex -> fixes Reports; Stuart -> flags a threat.
     private void CheckAct2BotFixes()
     {
         if (GameState.I == null || GameState.I.day != 2) return;
@@ -415,8 +415,6 @@ public class StoryDirector : MonoBehaviour
     [Tooltip("Seconds between each auto-completed task in the blitz.")]
     public float day3BlitzInterval = 0.09f;
 
-    // Beat 16: Day 3 loads a huge task list. The bots cheer the player on; the player does ONE
-    // task; then the bots blitz ALL the rest themselves, then turn cold. Then the dark minigame.
     public void StartWorkDay3()
     {
         var tasks = new System.Collections.Generic.List<WorkTask>();
@@ -518,12 +516,10 @@ public class StoryDirector : MonoBehaviour
         if (win != null && windowManager != null) windowManager.CloseWindow(win);
     }
 
-    // Beat 17: "A Favour for a Friend" \u2014 three dark minigames play one after another:
-    // Find Steven (dark maze) -> Kidnap Steven (cops closing in) -> Supplies (approve items).
     private void Beat17_DarkMinigame()
     {
         Debug.Log("[Story] beat 17: dark minigame sequence begins.");
-        // The end sequence begins here \u2014 swap to the finale ambience for the dark games.
+
         if (GameState.I != null) GameState.I.SetFlag("end_sequence");
         SoundManager.StartEndAmbience();
 
@@ -543,8 +539,6 @@ public class StoryDirector : MonoBehaviour
         });
     }
 
-    // Beat 18: the company chat already flipped at Day 3 start. Now, after the dark deed, a single
-    // clearly-wrong email arrives "from Steven" \u2014 too calm, stilted, knowing things it shouldn't.
     private void Beat18_ThingsGoWrong()
     {
         Debug.Log("[Story] beat 18: the wrong-Steven email.");
@@ -561,8 +555,6 @@ public class StoryDirector : MonoBehaviour
         Beat19_DeleteTheBots();
     }
 
-    // Beat 19: Cass emails "DELETE THE BOTS" with instructions. Then the player deletes each bot
-    // via the spell-DELETE struggle \u2014 early bots rage, the last one pleads. Then beat 20.
     private void Beat19_DeleteTheBots()
     {
         Debug.Log("[Story] beat 19: Cass \u2014 DELETE THE BOTS.");
@@ -661,7 +653,7 @@ public class StoryDirector : MonoBehaviour
             "don't leave me in here alone.",
         };
 
-        bool survivorsPlead = _deletedCount >= _totalToDelete - 1;   // only the last one left
+        bool survivorsPlead = _deletedCount >= _totalToDelete - 1;
 
         while (true)
         {
@@ -860,7 +852,9 @@ public class StoryDirector : MonoBehaviour
             ? appLauncher.EnsureBotOpen(botId)    // reopen it if closed \u2014 it won't let you look away
             : ChatRegistry.Newest;
         if (chat == null) { Debug.LogWarning("[Story] SE1: no bot to spam through."); yield break; }
- 
+
+        ChatController.SanityEventIsActive = true;
+
         // Escalating spam, one line at a time with gaps.
         string[] lines = {
             "hi",
@@ -907,6 +901,7 @@ public class StoryDirector : MonoBehaviour
             yield return new WaitForSeconds(gap);
         }
 
+        ChatController.SanityEventIsActive = false; 
  
         if (GameState.I) GameState.I.SetFlag("beat7_lonely_spam");
         Debug.Log("[Story] beat 7: lonely spam delivered.");
@@ -959,6 +954,8 @@ public class StoryDirector : MonoBehaviour
         BotDock.GatherToCentre(new System.Collections.Generic.List<string> { "stuart", "alex", "lauren" });
         yield return new WaitForSeconds(1.2f);
 
+        ChatController.SanityEventIsActive = true; 
+
         // The dark questions, turn by turn.
         foreach (var (botId, line) in DarkQuestions.Script)
         {
@@ -967,6 +964,8 @@ public class StoryDirector : MonoBehaviour
             chat?.InjectBotLine(line, ominous: true);
             yield return new WaitForSeconds(2.6f);
         }
+
+        ChatController.SanityEventIsActive = false; 
 
         if (GameState.I) GameState.I.SetFlag("beat12_dark_questions_done");
         Debug.Log("[Story] Sanity Event 3 complete.");

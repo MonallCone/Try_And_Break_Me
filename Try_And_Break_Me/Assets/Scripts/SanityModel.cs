@@ -36,7 +36,7 @@ public class SanityModel
     public TurnResult ApplyTurn(int rudeness, int offTopic, int contradiction, int ignoredBots = 0)
     {
         var r = new TurnResult();
-        r.timeLoss          = timeDecayPerTurn + neglectPerIgnoredBot * Mathf.Max(0, ignoredBots);
+        //r.timeLoss          = timeDecayPerTurn + neglectPerIgnoredBot * Mathf.Max(0, ignoredBots);
         r.rudenessLoss      = rudeness      * rudenessWeight;
         r.offTopicLoss      = offTopic      * offTopicWeight;
         r.contradictionLoss = contradiction * contradictionWeight;

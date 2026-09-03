@@ -31,6 +31,8 @@ public class ChatController
     private Image _coherenceFill;
     private TMP_Text _coherenceLabel;
 
+    public static bool SanityEventIsActive = false;
+
     public ChatController(CharacterSheet sheet, EmotionProfile emotion, SanityModel sanity,
                           IDialogueProvider provider, IDirectorProvider director, Sprite icon = null)
     {
@@ -395,8 +397,13 @@ public class ChatController
         string userText = _input.text.Trim();
         if (string.IsNullOrEmpty(userText)) return;
 
+
+        if(SanityEventIsActive){
+            _input.text = "";
+            return;
+        }
+
         MarkInteractionNow();   // talking to the bot resets its ignore timer (Sanity Event 2)
-        Coherence.RecoverBot(BotId, 12f);   // and recovers its coherence quickly (up to the group level)
 
         _input.text = "";
         SetBusy(true);
