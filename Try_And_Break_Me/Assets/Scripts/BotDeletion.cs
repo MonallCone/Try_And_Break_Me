@@ -3,11 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// Beat 19-20: deleting a bot, IN its own window. The bot's chat content is cleared and replaced
-// with scattered letter buttons; the player clicks D-E-L-E-T-E in order. Wrong letters simply
-// don't count (no penalty to the typed word). The bot RESISTS: the window jerks and the letters
-// reshuffle, and the bot reacts in chat (rage for early bots, pleading for the last). Completing
-// the word: the bot screams, its window is destroyed, onComplete fires.
 public class BotDeletion : MonoBehaviour
 {
     private const string Word = "DELETE";
@@ -40,6 +35,9 @@ public class BotDeletion : MonoBehaviour
     private Image _rootImg;          // the deletion window background (for colour inversion)
     private bool _inverted;
 
+    private static readonly Color BgRed = new Color(0.55f, 0.06f, 0.06f);
+    private static readonly Color BgBlack = Color.black;
+
     private void Build(RectTransform content)
     {
         // Clear the existing chat UI from the content area.
@@ -48,7 +46,7 @@ public class BotDeletion : MonoBehaviour
         var root = NewRect(content, "DeleteRoot");
         Stretch(root);
         _rootImg = root.gameObject.AddComponent<Image>();
-        _rootImg.color = new Color(0.1f, 0.05f, 0.05f);
+        _rootImg.color = BgRed;
 
         // Big clear typed-so-far indicator (white), showing correctly-clicked letters building up.
         _typed = MakeText(root, "", 40, Color.white);
@@ -130,22 +128,48 @@ public class BotDeletion : MonoBehaviour
             lbl.fontStyle = FontStyles.Bold; lbl.alignment = TextAlignmentOptions.Center;
 
             char letter = c;
-            go.GetComponent<Button>().onClick.AddListener(() => OnLetterClicked(letter));
+            RectTransform btnRt = rt;
+            Image btnImg = go.GetComponent<Image>();
+            go.GetComponent<Button>().onClick.AddListener(() => OnLetterClicked(letter, btnRt, btnImg));
             _letterButtons.Add(go.GetComponent<Button>());
         }
     }
 
-    private void OnLetterClicked(char letter)
+    private void OnLetterClicked(char letter, RectTransform btnRt, Image btnImg)
     {
         if (_done) return;
         // Correct next letter advances; anything else simply doesn't count (buttons still scatter).
-        if (letter == Word[_progress])
+        bool correct = letter == Word[_progress];
+        if (correct)
         {
             _progress++;
             UpdateTyped();
             if (_progress >= Word.Length) { Complete(); return; }
         }
         ReshuffleButtons();
+        // Give the exact tile that was clicked a clear "yes, that counted" pop before it scatters again.
+        if (correct) StartCoroutine(PulseCorrect(btnRt, btnImg));
+    }
+
+    private static readonly Color CorrectFlash = new Color(0.4f, 1f, 0.5f);
+
+    private System.Collections.IEnumerator PulseCorrect(RectTransform btnRt, Image btnImg)
+    {
+        if (btnRt == null || btnImg == null) yield break;
+        const float dur = 0.3f;
+        float t = 0f;
+        while (t < dur)
+        {
+            if (btnRt == null || btnImg == null) yield break; // tile could be torn down mid-pulse
+            t += Time.deltaTime;
+            float p = Mathf.Clamp01(t / dur);
+            btnRt.localScale = Vector3.one * Mathf.Lerp(1.8f, 1f, p);
+            Color settle = _inverted ? new Color(0.2f, 0.75f, 0.75f) : new Color(0.8f, 0.25f, 0.25f);
+            btnImg.color = Color.Lerp(CorrectFlash, settle, p);
+            yield return null;
+        }
+        if (btnRt != null) btnRt.localScale = Vector3.one;
+        if (btnImg != null) btnImg.color = _inverted ? new Color(0.2f, 0.75f, 0.75f) : new Color(0.8f, 0.25f, 0.25f);
     }
 
     private void UpdateTyped()
@@ -154,6 +178,9 @@ public class BotDeletion : MonoBehaviour
         string got = Word.Substring(0, _progress);
         string rest = Word.Substring(_progress);
         _typed.text = $"{got}<color=#7a5555>{rest}</color>";
+        // Grow the whole readout as the player gets further through the sequence \u2014 a second,
+        // persistent cue for progress alongside the per-tile pop.
+        _typed.fontSize = Mathf.Lerp(40f, 64f, (float)_progress / Word.Length);
     }
 
     private void Update()
@@ -191,17 +218,17 @@ public class BotDeletion : MonoBehaviour
     private void InvertMinigameColours()
     {
         _inverted = !_inverted;
-        // Flip the deletion window background and the letter tiles between two states.
+        // Flip the deletion window background between red (default) and black (inverted).
         if (_rootImg != null)
-            _rootImg.color = _inverted ? new Color(0.9f, 0.9f, 0.92f) : new Color(0.1f, 0.05f, 0.05f);
+            _rootImg.color = _inverted ? BgBlack : BgRed;
+        // Letter tiles keep their existing colour swap.
         foreach (var b in _letterButtons)
         {
             if (b == null) continue;
             var img = b.GetComponent<Image>();
             if (img != null) img.color = _inverted ? new Color(0.2f, 0.75f, 0.75f) : new Color(0.8f, 0.25f, 0.25f);
         }
-        // Keep the typed/reaction text readable against whichever background.
-        if (_typed != null) _typed.color = _inverted ? Color.black : Color.white;
+        // Words stay white throughout — readable against both the red and black backgrounds.
     }
 
     private bool _releasedOthers;
